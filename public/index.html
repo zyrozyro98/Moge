@@ -63,12 +63,12 @@
             <h3><i class="fa-solid fa-gears card-icon"></i>إعدادات خادم البريد (SMTP)</h3>
             <p>قم بضبط وتجربة إعدادات خادم الإرسال لتأمين حملتك البريدية.</p>
           </div>
-          <form id="smtpForm" class="grid-form">
+          <form id="smtpForm" class="grid-form" autocomplete="off">
             <div class="form-group span-2">
               <label for="smtpHost">مضيف SMTP (Host)</label>
               <div class="input-wrapper">
                 <i class="fa-solid fa-network-wired"></i>
-                <input type="text" id="smtpHost" placeholder="مثال: smtp.gmail.com" required>
+                <input type="text" id="smtpHost" placeholder="مثال: smtp.gmail.com" required autocomplete="off">
               </div>
             </div>
             
@@ -76,7 +76,7 @@
               <label for="smtpPort">المنفذ (Port)</label>
               <div class="input-wrapper">
                 <i class="fa-solid fa-door-open"></i>
-                <input type="number" id="smtpPort" placeholder="587" value="587" required>
+                <input type="number" id="smtpPort" placeholder="587" value="587" required autocomplete="off">
               </div>
             </div>
 
@@ -92,7 +92,7 @@
               <label for="smtpUser">اسم المستخدم / البريد الإلكتروني</label>
               <div class="input-wrapper">
                 <i class="fa-solid fa-envelope"></i>
-                <input type="email" id="smtpUser" placeholder="your-email@domain.com" required>
+                <input type="email" id="smtpUser" placeholder="your-email@domain.com" required autocomplete="off">
               </div>
             </div>
 
@@ -100,7 +100,7 @@
               <label for="smtpPass">كلمة المرور (أو كلمة مرور التطبيق)</label>
               <div class="input-wrapper">
                 <i class="fa-solid fa-lock"></i>
-                <input type="password" id="smtpPass" placeholder="••••••••••••••••" required>
+                <input type="password" id="smtpPass" placeholder="••••••••••••••••" required autocomplete="new-password">
               </div>
               <small class="form-hint">لبريد Gmail، يرجى استخدام "كلمة مرور التطبيق" (App Password) وليس كلمة مرور حسابك العادية.</small>
             </div>

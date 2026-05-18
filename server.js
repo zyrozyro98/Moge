@@ -20,7 +20,16 @@ const CONFIG_FILE = path.join(__dirname, 'config.json');
 
 // Helper to load SMTP configuration
 function loadConfig() {
-  // 1. Prioritize Environment Variables (perfect for secure Render/Railway cloud deployment)
+  // 1. First, prioritize the local config.json file (user's saved settings in UI take absolute priority)
+  if (fs.existsSync(CONFIG_FILE)) {
+    try {
+      return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+    } catch (err) {
+      console.error('Error reading config file:', err);
+    }
+  }
+
+  // 2. If no config.json exists, fallback to Environment Variables (perfect for secure Render/Railway cloud deployment)
   if (process.env.SMTP_HOST) {
     return {
       host: process.env.SMTP_HOST,
@@ -33,14 +42,7 @@ function loadConfig() {
     };
   }
 
-  // 2. Fallback to local config.json file
-  if (fs.existsSync(CONFIG_FILE)) {
-    try {
-      return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
-    } catch (err) {
-      console.error('Error reading config file:', err);
-    }
-  }
+  // 3. Ultimate default fallback
   return {
     host: '',
     port: 587,

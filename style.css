@@ -189,6 +189,7 @@ h1, h2, h3, h4, h5, h6 {
 .highlight {
     background: linear-gradient(90deg, var(--secondary) 0%, var(--primary) 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     position: relative;
     display: inline-block;
@@ -330,6 +331,7 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 28px;
     background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -345,6 +347,7 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--secondary);
     background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -734,6 +737,7 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--text-white);
     background: linear-gradient(135deg, var(--text-white) 30%, var(--secondary) 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -1080,6 +1084,7 @@ h1, h2, h3, h4, h5, h6 {
 .duration-slider {
     width: 100%;
     -webkit-appearance: none;
+    appearance: none;
     height: 6px;
     background: rgba(255, 255, 255, 0.08);
     border-radius: 10px;
@@ -1088,6 +1093,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .duration-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
+    appearance: none;
     width: 20px;
     height: 20px;
     border-radius: 50%;

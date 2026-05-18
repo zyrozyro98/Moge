@@ -512,7 +512,7 @@ h1, h2, h3, h4, h5, h6 {
 .visual-card:hover {
     border-color: var(--border-color-hover);
     transform: translateY(-5px);
-    box-shadow: 0 20px 45px rgba(138, 63, 252, 0.15);
+    box-shadow: 0 20px 45px rgba(30, 58, 138, 0.15);
 }
 
 .card-header-visual {
@@ -570,8 +570,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .student-info .grade-badge {
     margin-right: auto;
-    background: rgba(0, 255, 136, 0.12);
-    border: 1px solid rgba(0, 255, 136, 0.3);
+    background: rgba(22, 163, 74, 0.12);
+    border: 1px solid rgba(22, 163, 74, 0.3);
     color: var(--text-success);
     font-weight: 800;
     padding: 4px 12px;
@@ -624,7 +624,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .gpa-summary {
     background: rgba(0, 0, 0, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 16px;
     text-align: center;
@@ -710,7 +710,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .stats-container {
-    background: linear-gradient(135deg, rgba(138, 63, 252, 0.08) 0%, rgba(0, 240, 255, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(30, 58, 138, 0.08) 0%, rgba(37, 99, 235, 0.05) 100%);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     backdrop-filter: blur(12px);
@@ -824,13 +824,13 @@ h1, h2, h3, h4, h5, h6 {
 .service-card:hover {
     border-color: var(--border-color-hover);
     transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(138, 63, 252, 0.12);
+    box-shadow: 0 20px 40px rgba(30, 58, 138, 0.12);
 }
 
 .service-icon-wrapper {
     width: 60px;
     height: 60px;
-    background: rgba(138, 63, 252, 0.08);
+    background: rgba(30, 58, 138, 0.08);
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
@@ -838,7 +838,7 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 24px;
     color: var(--secondary);
     margin-bottom: 24px;
-    border: 1px solid rgba(138, 63, 252, 0.15);
+    border: 1px solid rgba(30, 58, 138, 0.15);
     transition: var(--transition-smooth);
 }
 
@@ -910,8 +910,8 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Featured Service Card */
 .service-card.featured {
-    border: 1px solid rgba(138, 63, 252, 0.4);
-    box-shadow: 0 15px 35px rgba(138, 63, 252, 0.08);
+    border: 1px solid rgba(30, 58, 138, 0.4);
+    box-shadow: 0 15px 35px rgba(30, 58, 138, 0.08);
 }
 
 .service-card.featured::before {
@@ -939,15 +939,15 @@ h1, h2, h3, h4, h5, h6 {
 
 /* VIP Luxury Card */
 .service-card.vip-card {
-    border: 1px solid rgba(255, 215, 0, 0.25);
-    background: radial-gradient(circle at 100% 100%, rgba(25, 15, 45, 0.9) 0%, rgba(10, 5, 20, 0.95) 100%);
-    box-shadow: 0 20px 45px rgba(255, 215, 0, 0.06);
+    border: 1px solid rgba(217, 119, 6, 0.25);
+    background: radial-gradient(circle at 100% 100%, rgba(15, 23, 42, 0.9) 0%, rgba(2, 6, 23, 0.95) 100%);
+    box-shadow: 0 20px 45px rgba(217, 119, 6, 0.06);
 }
 
 .vip-card .service-icon-wrapper {
     color: var(--gold);
-    background: rgba(255, 215, 0, 0.05);
-    border-color: rgba(255, 215, 0, 0.15);
+    background: rgba(217, 119, 6, 0.05);
+    border-color: rgba(217, 119, 6, 0.15);
 }
 
 .service-card.vip-card:hover .service-icon-wrapper {
@@ -1043,14 +1043,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .uni-option:hover {
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: var(--border-color-hover);
     background: rgba(0, 0, 0, 0.04);
 }
 
 .uni-option.active {
     border-color: var(--primary);
-    background: rgba(138, 63, 252, 0.08);
-    box-shadow: 0 0 15px rgba(138, 63, 252, 0.15);
+    background: rgba(30, 58, 138, 0.08);
+    box-shadow: 0 0 15px rgba(30, 58, 138, 0.15);
 }
 
 .uni-option.active h4 {
@@ -1148,13 +1148,13 @@ h1, h2, h3, h4, h5, h6 {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(138, 63, 252, 0.05) 0%, transparent 60%);
+    background: radial-gradient(circle, rgba(30, 58, 138, 0.05) 0%, transparent 60%);
     pointer-events: none;
 }
 
 .vip-badge-calc {
-    background: rgba(255, 215, 0, 0.1);
-    border: 1px solid rgba(255, 215, 0, 0.25);
+    background: rgba(217, 119, 6, 0.1);
+    border: 1px solid rgba(217, 119, 6, 0.25);
     color: var(--gold);
     font-size: 12px;
     font-weight: 700;
@@ -1197,8 +1197,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .price-discount-badge {
-    background: rgba(0, 255, 136, 0.1);
-    border: 1px solid rgba(0, 255, 136, 0.25);
+    background: rgba(22, 163, 74, 0.1);
+    border: 1px solid rgba(22, 163, 74, 0.25);
     color: var(--text-success);
     font-size: 12px;
     font-weight: 700;
@@ -1214,7 +1214,7 @@ h1, h2, h3, h4, h5, h6 {
     list-style: none;
     width: 100%;
     margin-bottom: 30px;
-    border-top: 1px solid rgba(255,255,255,0.06);
+    border-top: 1px solid var(--border-color);
     padding-top: 20px;
     display: flex;
     flex-direction: column;
@@ -1282,8 +1282,8 @@ h1, h2, h3, h4, h5, h6 {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: rgba(138, 63, 252, 0.08);
-    border: 1px solid rgba(138, 63, 252, 0.2);
+    background: rgba(30, 58, 138, 0.08);
+    border: 1px solid rgba(30, 58, 138, 0.2);
     color: var(--secondary);
     display: flex;
     align-items: center;
@@ -1315,7 +1315,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .form-header {
-    background: linear-gradient(135deg, rgba(138, 63, 252, 0.15) 0%, rgba(0, 240, 255, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(30, 58, 138, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%);
     border-bottom: 1px solid var(--border-color);
     padding: 24px 30px;
     text-align: center;
@@ -1506,7 +1506,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .general-group-banner {
-    background: linear-gradient(135deg, rgba(20, 12, 38, 0.8) 0%, rgba(6, 3, 12, 0.95) 100%);
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(2, 6, 23, 0.95) 100%);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     padding: 35px 40px;
@@ -1612,7 +1612,7 @@ h1, h2, h3, h4, h5, h6 {
 .partner-logo-card:hover {
     border-color: var(--border-color-hover);
     transform: scale(1.03);
-    box-shadow: 0 10px 25px rgba(138, 63, 252, 0.08);
+    box-shadow: 0 10px 25px rgba(30, 58, 138, 0.08);
 }
 
 .partner-icon {
@@ -1654,7 +1654,7 @@ h1, h2, h3, h4, h5, h6 {
 .testimonial-card:hover {
     border-color: var(--border-color-hover);
     transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(138, 63, 252, 0.08);
+    box-shadow: 0 15px 30px rgba(30, 58, 138, 0.08);
 }
 
 .quote-icon {
@@ -1662,7 +1662,7 @@ h1, h2, h3, h4, h5, h6 {
     top: 24px;
     left: 30px;
     font-size: 32px;
-    color: rgba(255, 255, 255, 0.03);
+    color: rgba(30, 58, 138, 0.06); /* Changed from white to faint Royal Navy for visibility */
     pointer-events: none;
 }
 
@@ -1760,7 +1760,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .faq-question:hover {
     color: var(--secondary);
-    background: rgba(255, 255, 255, 0.01);
+    background: rgba(0, 0, 0, 0.02);
 }
 
 .faq-arrow {
@@ -1787,7 +1787,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Active FAQ Item state */
 .faq-item.active {
     border-color: var(--border-color-hover);
-    box-shadow: 0 10px 20px rgba(138, 63, 252, 0.05);
+    box-shadow: 0 10px 20px rgba(30, 58, 138, 0.05);
 }
 
 .faq-item.active .faq-question {
@@ -1807,8 +1807,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .cta-banner-wrapper {
-    background: linear-gradient(135deg, rgba(138, 63, 252, 0.2) 0%, rgba(0, 240, 255, 0.15) 100%);
-    border: 1px solid rgba(138, 63, 252, 0.35);
+    background: linear-gradient(135deg, rgba(30, 58, 138, 0.2) 0%, rgba(37, 99, 235, 0.15) 100%);
+    border: 1px solid rgba(30, 58, 138, 0.35);
     border-radius: var(--radius-lg);
     padding: 50px;
     display: flex;
@@ -1829,7 +1829,7 @@ h1, h2, h3, h4, h5, h6 {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(0, 240, 255, 0.08) 0%, transparent 60%);
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, transparent 60%);
     pointer-events: none;
 }
 
@@ -1870,7 +1870,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* 17. Main Footer Layout */
 .main-footer {
-    background: #030107;
+    background: var(--bg-dark-card); /* Changed from #030107 for light mode readability */
     border-top: 1px solid var(--border-color);
     padding-top: 80px;
     position: relative;
@@ -1944,7 +1944,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .social-btn.twitter:hover {
     background: linear-gradient(135deg, #ffffff 0%, #dfdfdf 100%);
-    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.25);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 }
 
 .social-btn.facebook:hover {
@@ -2067,7 +2067,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .bottom-links .bullet {
-    color: rgba(255,255,255,0.1);
+    color: var(--border-color);
 }
 
 /* 18. Floating Container & Custom Widgets */
@@ -2181,7 +2181,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .popup-header {
-    background: linear-gradient(135deg, rgba(37, 211, 102, 0.2) 0%, rgba(138, 63, 252, 0.15) 100%);
+    background: linear-gradient(135deg, rgba(37, 211, 102, 0.2) 0%, rgba(30, 58, 138, 0.15) 100%);
     border-bottom: 1px solid var(--border-color);
     padding: 16px 20px;
     display: flex;
@@ -2297,7 +2297,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .popup-footer {
     padding: 12px 20px 20px;
-    border-top: 1px solid rgba(255,255,255,0.04);
+    border-top: 1px solid var(--border-color);
 }
 
 .btn-whatsapp-direct-popup {
@@ -2618,7 +2618,7 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     flex-direction: column;
     gap: 0;
-    background: var(--bg-card);
+    background: var(--bg-dark-card); /* Fixed typo from --bg-card */
     border: 1px solid var(--border-color);
     border-left: none;
     border-radius: 0 15px 15px 0;

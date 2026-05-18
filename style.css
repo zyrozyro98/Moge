@@ -6,31 +6,31 @@
 
 /* 1. Core Variables & Design System */
 :root {
-    --bg-dark-deep: #f8fafc;
-    --bg-dark-card: rgba(255, 255, 255, 0.9);
-    --bg-dark-nav: rgba(255, 255, 255, 0.95);
-    --primary: #4f46e5;
-    --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    --primary-glow: rgba(79, 70, 229, 0.25);
-    --secondary: #0ea5e9;
-    --secondary-gradient: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
-    --secondary-glow: rgba(14, 165, 233, 0.25);
-    --gold: #f59e0b;
-    --gold-gradient: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
-    --gold-glow: rgba(245, 158, 11, 0.25);
-    --text-white: #0f172a;
-    --text-light: #334155;
-    --text-muted: #64748b;
-    --text-success: #00ff88;
-    --text-warning: #ffb800;
-    --border-color: rgba(15, 23, 42, 0.08);
-    --border-color-hover: rgba(79, 70, 229, 0.3);
-    --radius-xl: 30px;
-    --radius-lg: 20px;
-    --radius-md: 12px;
-    --radius-sm: 8px;
-    --shadow-premium: 0 20px 40px rgba(15, 23, 42, 0.08);
-    --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    --bg-dark-deep: #ffffff; /* Pure white background */
+    --bg-dark-card: #f8fafc; /* Very light slate for cards */
+    --bg-dark-nav: rgba(255, 255, 255, 0.98);
+    --primary: #1e3a8a; /* Royal Navy */
+    --primary-gradient: linear-gradient(135deg, #1e40af 0%, #172554 100%);
+    --primary-glow: rgba(30, 58, 138, 0.15);
+    --secondary: #2563eb; /* Trust Blue */
+    --secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    --secondary-glow: rgba(37, 99, 235, 0.15);
+    --gold: #d97706; /* VIP Gold */
+    --gold-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    --gold-glow: rgba(217, 119, 6, 0.15);
+    --text-white: #0f172a; /* Slate 900 for main text */
+    --text-light: #475569; /* Slate 600 for body */
+    --text-muted: #64748b; /* Slate 500 for muted */
+    --text-success: #16a34a; /* Green 600 */
+    --text-warning: #ea580c; /* Orange 600 */
+    --border-color: rgba(15, 23, 42, 0.06);
+    --border-color-hover: rgba(30, 58, 138, 0.2);
+    --radius-xl: 24px;
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --radius-sm: 6px;
+    --shadow-premium: 0 10px 30px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.02);
+    --transition-smooth: all 0.3s ease-in-out;
     --font-cairo: 'Cairo', sans-serif;
     --font-tajawal: 'Tajawal', sans-serif;
 }
@@ -116,7 +116,7 @@ body {
 .loader-spinner {
     width: 50px;
     height: 50px;
-    border: 3px solid rgba(138, 63, 252, 0.1);
+    border: 3px solid rgba(30, 58, 138, 0.1);
     border-radius: 50%;
     border-top-color: var(--primary);
     border-right-color: var(--secondary);
@@ -144,7 +144,7 @@ body {
     position: absolute;
     border-radius: 50%;
     filter: blur(120px);
-    opacity: 0.25;
+    opacity: 0.04; /* Reduced from 0.25 for a super clean light mode aesthetic */
     animation: rotateGlow 25s infinite alternate ease-in-out;
 }
 
@@ -236,7 +236,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-outline {
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.15); /* Visible border for light mode */
     color: var(--text-white);
 }
 
@@ -432,9 +432,9 @@ h1, h2, h3, h4, h5, h6 {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(138, 63, 252, 0.12);
-    border: 1px solid rgba(138, 63, 252, 0.3);
-    color: #b78dfd;
+    background: rgba(30, 58, 138, 0.1);
+    border: 1px solid rgba(30, 58, 138, 0.2);
+    color: var(--primary);
     padding: 6px 16px;
     border-radius: 50px;
     font-size: 13px;

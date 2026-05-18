@@ -1584,7 +1584,7 @@ h1, h2, h3, h4, h5, h6 {
 
 @keyframes scrollMarquee {
     0% { transform: translateX(0); }
-    100% { transform: translateX(50%); }
+    100% { transform: translateX(calc(-50% - 15px)); }
 }
 
 [dir="rtl"] .marquee-track {
@@ -1593,7 +1593,7 @@ h1, h2, h3, h4, h5, h6 {
 
 @keyframes scrollMarqueeRTL {
     0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+    100% { transform: translateX(calc(50% + 15px)); }
 }
 
 .partner-logo-card {

@@ -346,4 +346,68 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // 10. Live Dynamic Student Dashboard Feed (Trust & Reliability)
+    const studentNames = ["أحمد عبد الله", "سارة العتيبي", "محمد القحطاني", "نورة الدوسري", "فيصل الحربي", "ريم المطيري", "عبد العزيز الشمري", "شهد العنزي", "فهد الزهراني", "ليان السبيعي"];
+    const universities = ["جامعة الملك فهد بن سلطان", "جامعة الأمير مقرن", "جامعة عفت", "جامعة الباحة", "جامعة الملك سعود", "جامعة الملك عبد العزيز", "جامعة جدة", "جامعة أم القرى"];
+    const grades = ["A+", "A", "A+"];
+    const gpas = ["5.00 / 5.00", "4.98 / 5.00", "4.95 / 5.00", "4.89 / 5.00"];
+    const percentages = ["100%", "98%", "99%", "100%", "97%"];
+
+    const studentNameEl = document.querySelector('.student-name');
+    const studentUniEl = document.querySelector('.student-uni');
+    const gradeBadgeEl = document.querySelector('.grade-badge');
+    const gpaNumEl = document.querySelector('.gpa-num');
+    const chartValues = document.querySelectorAll('.chart-value');
+    const chartBars = document.querySelectorAll('.bar-inner');
+    const mainCard = document.querySelector('.main-card');
+    const floatBadge1 = document.querySelector('.float-badge-1');
+    const floatBadge2 = document.querySelector('.float-badge-2');
+    
+    if (studentNameEl && mainCard) {
+        // Add transition style inline or via CSS for smooth fading
+        mainCard.style.transition = "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)";
+        if(floatBadge1) floatBadge1.style.transition = "opacity 0.4s ease";
+        if(floatBadge2) floatBadge2.style.transition = "opacity 0.4s ease";
+
+        setInterval(() => {
+            // Add a brief fade-out effect for transition
+            mainCard.style.opacity = '0.4';
+            mainCard.style.transform = 'scale(0.97)';
+            if(floatBadge1) floatBadge1.style.opacity = '0';
+            if(floatBadge2) floatBadge2.style.opacity = '0';
+            
+            setTimeout(() => {
+                const randomName = studentNames[Math.floor(Math.random() * studentNames.length)];
+                const randomUni = universities[Math.floor(Math.random() * universities.length)];
+                const randomGrade = grades[Math.floor(Math.random() * grades.length)];
+                const randomGpa = gpas[Math.floor(Math.random() * gpas.length)];
+                
+                studentNameEl.textContent = randomName;
+                studentUniEl.textContent = randomUni;
+                gradeBadgeEl.textContent = randomGrade;
+                gpaNumEl.textContent = randomGpa;
+                
+                chartValues.forEach(cv => {
+                    cv.textContent = percentages[Math.floor(Math.random() * percentages.length)];
+                });
+                chartBars.forEach(cb => {
+                    cb.style.width = percentages[Math.floor(Math.random() * percentages.length)];
+                });
+
+                // Fade back in
+                mainCard.style.opacity = '1';
+                mainCard.style.transform = 'scale(1) translateY(-5px)'; // Added slight float effect
+                if(floatBadge1) floatBadge1.style.opacity = '1';
+                if(floatBadge2) floatBadge2.style.opacity = '1';
+                
+                // reset transform after hover effect simulation
+                setTimeout(() => {
+                    mainCard.style.transform = 'scale(1) translateY(0)';
+                }, 500);
+
+            }, 400); // Wait for fade out to complete
+            
+        }, 5000); // Changes every 5 seconds for live feed effect
+    }
+
 });

@@ -6,30 +6,30 @@
 
 /* 1. Core Variables & Design System */
 :root {
-    --bg-dark-deep: #06030c;
-    --bg-dark-card: rgba(18, 11, 33, 0.65);
-    --bg-dark-nav: rgba(6, 3, 12, 0.8);
-    --primary: #8a3ffc;
-    --primary-gradient: linear-gradient(135deg, #8a3ffc 0%, #a25eff 100%);
-    --primary-glow: rgba(138, 63, 252, 0.4);
-    --secondary: #00f0ff;
-    --secondary-gradient: linear-gradient(135deg, #00f0ff 0%, #00b8ff 100%);
-    --secondary-glow: rgba(0, 240, 255, 0.3);
-    --gold: #ffd700;
-    --gold-gradient: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
-    --gold-glow: rgba(255, 215, 0, 0.35);
-    --text-white: #ffffff;
-    --text-light: #e5defb;
-    --text-muted: #8d81a9;
+    --bg-dark-deep: #f8fafc;
+    --bg-dark-card: rgba(255, 255, 255, 0.9);
+    --bg-dark-nav: rgba(255, 255, 255, 0.95);
+    --primary: #4f46e5;
+    --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    --primary-glow: rgba(79, 70, 229, 0.25);
+    --secondary: #0ea5e9;
+    --secondary-gradient: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+    --secondary-glow: rgba(14, 165, 233, 0.25);
+    --gold: #f59e0b;
+    --gold-gradient: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+    --gold-glow: rgba(245, 158, 11, 0.25);
+    --text-white: #0f172a;
+    --text-light: #334155;
+    --text-muted: #64748b;
     --text-success: #00ff88;
     --text-warning: #ffb800;
-    --border-color: rgba(255, 255, 255, 0.06);
-    --border-color-hover: rgba(138, 63, 252, 0.35);
+    --border-color: rgba(15, 23, 42, 0.08);
+    --border-color-hover: rgba(79, 70, 229, 0.3);
     --radius-xl: 30px;
     --radius-lg: 20px;
     --radius-md: 12px;
     --radius-sm: 8px;
-    --shadow-premium: 0 15px 35px rgba(0, 0, 0, 0.5);
+    --shadow-premium: 0 20px 40px rgba(15, 23, 42, 0.08);
     --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     --font-cairo: 'Cairo', sans-serif;
     --font-tajawal: 'Tajawal', sans-serif;
@@ -56,7 +56,7 @@ body {
 /* Premium Selection */
 ::selection {
     background-color: var(--primary);
-    color: var(--text-white);
+    color: #ffffff;
 }
 
 /* Scrollbar customization */
@@ -67,7 +67,7 @@ body {
     background: var(--bg-dark-deep);
 }
 ::-webkit-scrollbar-thumb {
-    background: #1f143a;
+    background: #cbd5e1;
     border-radius: 5px;
     border: 2px solid var(--bg-dark-deep);
 }
@@ -144,7 +144,7 @@ body {
     position: absolute;
     border-radius: 50%;
     filter: blur(120px);
-    opacity: 0.15;
+    opacity: 0.25;
     animation: rotateGlow 25s infinite alternate ease-in-out;
 }
 
@@ -225,7 +225,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-primary {
     background: var(--primary-gradient);
-    color: var(--text-white);
+    color: #ffffff;
     box-shadow: 0 4px 15px var(--primary-glow);
 }
 
@@ -241,14 +241,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-outline:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.05);
     border-color: var(--primary);
     transform: translateY(-3px);
 }
 
 .btn-glow {
     background: var(--secondary-gradient);
-    color: var(--bg-dark-deep);
+    color: #ffffff;
     font-weight: 700;
     box-shadow: 0 4px 20px var(--secondary-glow);
 }
@@ -261,7 +261,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-gold {
     background: var(--gold-gradient);
-    color: var(--bg-dark-deep);
+    color: #ffffff;
     font-weight: 700;
     box-shadow: 0 4px 20px var(--gold-glow);
 }
@@ -549,7 +549,7 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
     justify-content: center;
     font-size: 20px;
-    color: var(--text-white);
+    color: #ffffff;
 }
 
 .student-info .info {
@@ -601,7 +601,7 @@ h1, h2, h3, h4, h5, h6 {
 .bar-outer {
     flex-grow: 1;
     height: 8px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.05);
     border-radius: 10px;
     overflow: hidden;
 }
@@ -623,7 +623,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .gpa-summary {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(0, 0, 0, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: var(--radius-md);
     padding: 16px;
@@ -658,7 +658,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Floating Elements */
 .visual-badge {
     position: absolute;
-    background: rgba(18, 11, 33, 0.85);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
     border: 1px solid var(--border-color);
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
@@ -674,7 +674,7 @@ h1, h2, h3, h4, h5, h6 {
 .visual-badge i {
     font-size: 18px;
     padding: 8px;
-    background: rgba(255,255,255,0.03);
+    background: rgba(0,0,0,0.05);
     border-radius: 50%;
 }
 
@@ -735,7 +735,7 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 800;
     font-family: var(--font-tajawal);
     color: var(--text-white);
-    background: linear-gradient(135deg, var(--text-white) 30%, var(--secondary) 100%);
+    background: linear-gradient(135deg, var(--text-white) 0%, var(--secondary) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -757,7 +757,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .divider-v {
     width: 1px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.08);
 }
 
 /* 8. Sections Layout General */
@@ -844,7 +844,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .service-card:hover .service-icon-wrapper {
     background: var(--primary-gradient);
-    color: var(--text-white);
+    color: #ffffff;
     box-shadow: 0 4px 15px var(--primary-glow);
     border-color: transparent;
 }
@@ -1022,7 +1022,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .uni-option {
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(0, 0, 0, 0.02);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 16px;
@@ -1044,7 +1044,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .uni-option:hover {
     border-color: rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(0, 0, 0, 0.04);
 }
 
 .uni-option.active {
@@ -1059,7 +1059,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .calc-input {
     width: 100%;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(0, 0, 0, 0.03);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 14px 20px;
@@ -1074,7 +1074,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .calc-input:focus {
     border-color: var(--primary);
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.05);
 }
 
 .duration-slider-wrapper {
@@ -1086,7 +1086,7 @@ h1, h2, h3, h4, h5, h6 {
     -webkit-appearance: none;
     appearance: none;
     height: 6px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.08);
     border-radius: 10px;
     outline: none;
 }
@@ -1127,7 +1127,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Result panel styling */
 .calc-result-panel {
-    background: linear-gradient(135deg, rgba(20, 12, 38, 0.8) 0%, rgba(10, 5, 20, 0.9) 100%);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 245, 250, 0.95) 100%);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     padding: 40px;
@@ -1376,7 +1376,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .input-with-icon input, .input-with-icon select {
     width: 100%;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(0, 0, 0, 0.02);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 13px 44px 13px 18px;
@@ -1389,7 +1389,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .input-with-icon input:focus, .input-with-icon select:focus {
     border-color: var(--primary);
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(0, 0, 0, 0.04);
 }
 
 .input-with-icon input:focus ~ i, .input-with-icon select:focus ~ i {
@@ -1696,7 +1696,7 @@ h1, h2, h3, h4, h5, h6 {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(0, 0, 0, 0.03);
     border: 1px solid var(--border-color);
     color: var(--secondary);
     display: flex;
@@ -1915,7 +1915,7 @@ h1, h2, h3, h4, h5, h6 {
     width: 40px;
     height: 40px;
     border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(0, 0, 0, 0.03);
     border: 1px solid var(--border-color);
     color: var(--text-white);
     display: flex;
@@ -2247,7 +2247,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .whatsapp-opt-link {
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(0, 0, 0, 0.02);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 10px 14px;

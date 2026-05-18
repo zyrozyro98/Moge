@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 animateStatsOnScroll();
             }, 600);
         });
-        
+
         // Fail-safe: if load event already fired or delayed
         setTimeout(() => {
             if (!loader.classList.contains('fade-out')) {
@@ -28,10 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Sticky Navbar & Scroll-to-Top Button Visibility
     const header = document.querySelector('.main-header');
     const scrollTopBtn = document.getElementById('scrollTopBtn');
-    
+
     window.addEventListener('scroll', () => {
         const scrollPos = window.scrollY;
-        
+
         // Header sticky state
         if (scrollPos > 30) {
             header.classList.add('scrolled');
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             scrollTopBtn.classList.remove('show');
         }
-        
+
         // Check for scroll and animate counters
         animateStatsOnScroll();
     });
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. Mobile Menu Navigation Toggle
     const mobileToggle = document.getElementById('mobileToggle');
     const navMenu = document.getElementById('navMenu');
-    
+
     if (mobileToggle && navMenu) {
         mobileToggle.addEventListener('click', () => {
             mobileToggle.classList.toggle('active');
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             link.addEventListener('click', () => {
                 mobileToggle.classList.remove('active');
                 navMenu.classList.remove('active');
-                
+
                 // Add active state to clicked link
                 navLinks.forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
@@ -90,11 +90,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function animateStatsOnScroll() {
         if (animatedStats || statNumbers.length === 0) return;
-        
+
         const firstStat = statNumbers[0];
         const rect = firstStat.getBoundingClientRect();
         const isInViewport = rect.top < window.innerHeight && rect.bottom >= 0;
-        
+
         if (isInViewport) {
             animatedStats = true;
             statNumbers.forEach(stat => {
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const steps = duration / stepTime;
                 const increment = target / steps;
                 let current = 0;
-                
+
                 const timer = setInterval(() => {
                     current += increment;
                     if (current >= target) {
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const discountBadge = document.getElementById('discountBadge');
     const calcFeaturesList = document.getElementById('calcFeaturesList');
     const calcOrderBtn = document.getElementById('calcOrderBtn');
-    
+
     let activeUniType = 'gov';
     let activeMultiplier = 1.0;
 
@@ -172,16 +172,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     if (uniOptions.length > 0 && calcService && calcDuration && calculatedPrice) {
-        
+
         // Handle University classification selection
         uniOptions.forEach(option => {
             option.addEventListener('click', () => {
                 uniOptions.forEach(opt => opt.classList.remove('active'));
                 option.classList.add('active');
-                
+
                 activeUniType = option.getAttribute('data-uni-type');
                 activeMultiplier = parseFloat(option.getAttribute('data-multiplier'));
-                
+
                 updateCalculator();
             });
         });
@@ -209,10 +209,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const basePrice = parseFloat(selectedOpt.getAttribute('data-base-price'));
             const serviceKey = calcService.value;
             const durationMonths = parseInt(calcDuration.value, 10);
-            
+
             // Calculate base cost
             let totalPrice = basePrice * activeMultiplier * durationMonths;
-            
+
             // Apply multi-month discount
             let discountApplied = false;
             let discountRate = 0;
@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 discountRate = 0.15; // 15% discount for extended term (4 months)
                 discountApplied = true;
             }
-            
+
             if (discountApplied) {
                 totalPrice = totalPrice * (1 - discountRate);
                 discountBadge.style.display = 'flex';
@@ -231,11 +231,11 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 discountBadge.style.display = 'none';
             }
-            
+
             // Round pricing nicely
             const finalPrice = Math.round(totalPrice);
             calculatedPrice.textContent = finalPrice;
-            
+
             // Update features list view
             calcFeaturesList.innerHTML = '';
             const features = serviceFeaturesMap[serviceKey] || [];
@@ -249,17 +249,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const uniNameArabic = activeUniType === 'gov' ? 'جامعة حكومية' : (activeUniType === 'private' ? 'جامعة خاصة' : 'جامعة النخبة/دولية');
             const serviceNameArabic = selectedOpt.textContent.split(' (')[0];
             const durationText = durationMonths === 1 ? 'شهر واحد' : (durationMonths === 2 ? 'شهرين' : `${durationMonths} أشهر`);
-            
+
             const waMessage = `مرحباً دبلومالاين، أود الاشتراك والاستفسار عن الخدمة التالية:\n` +
-                              `- نوع الجامعة: ${uniNameArabic}\n` +
-                              `- نوع الخدمة: ${serviceNameArabic}\n` +
-                              `- مدة الاشتراك: ${durationText}\n` +
-                              `- السعر التقديري بالحاسبة: ${finalPrice} ريال سعودي\n\n` +
-                              `أرجو التواصل معي لتأكيد تفاصيل الاشتراك والبدء فوراً!`;
-            
+                `- نوع الجامعة: ${uniNameArabic}\n` +
+                `- نوع الخدمة: ${serviceNameArabic}\n` +
+                `- مدة الاشتراك: ${durationText}\n` +
+                `- السعر التقديري بالحاسبة: ${finalPrice} ريال سعودي\n\n` +
+                `أرجو التواصل معي لتأكيد تفاصيل الاشتراك والبدء فوراً!`;
+
             calcOrderBtn.href = `https://wa.me/966541996435?text=${encodeURIComponent(waMessage)}`;
         }
-        
+
         // Initial setup run
         updateCalculator();
     }
@@ -269,19 +269,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (uniRegForm) {
         uniRegForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            
+
             const name = document.getElementById('regName').value.trim();
             const phone = document.getElementById('regPhone').value.trim();
             const targetUni = document.getElementById('regUni').value;
             const desiredMajor = document.getElementById('regMajor').value.trim();
-            
+
             const waMessage = `مرحباً منصة دبلومالاين، أود طلب خدمة "التسجيل والقبول الجامعي" في المملكة العربية السعودية. إليك تفاصيل طلبي:\n\n` +
-                              `- اسم الطالب/الزبون: ${name}\n` +
-                              `- رقم الواتساب للتواصل: ${phone}\n` +
-                              `- الجامعة المستهدفة: ${targetUni}\n` +
-                              `- التخصص الأكاديمي المرغوب: ${desiredMajor}\n\n` +
-                              `أرجو من مستشار القبول والتسجيل التواصل معي وإفادتي بالإجراءات والمستندات المطلوبة في أسرع وقت. شكراً لكم!`;
-            
+                `- اسم الطالب: ${name}\n` +
+                `- رقم الواتساب للتواصل: ${phone}\n` +
+                `- الجامعة المطلوبة: ${targetUni}\n` +
+                `- التخصص الأكاديمي المرغوب: ${desiredMajor}\n\n` +
+                `أرجو من مستشار القبول والتسجيل التواصل معي وإفادتي بالإجراءات والمستندات المطلوبة في أسرع وقت. شكراً لكم!`;
+
             // Redirect the user directly to WhatsApp chat window
             const waUrl = `https://wa.me/966541996435?text=${encodeURIComponent(waMessage)}`;
             window.open(waUrl, '_blank');
@@ -294,16 +294,16 @@ document.addEventListener('DOMContentLoaded', () => {
         question.addEventListener('click', () => {
             const item = question.parentElement;
             const answer = question.nextElementSibling;
-            
+
             // Toggle active state on current item
             const isActive = item.classList.contains('active');
-            
+
             // Close all items
             document.querySelectorAll('.faq-item').forEach(faqItem => {
                 faqItem.classList.remove('active');
                 faqItem.querySelector('.faq-answer').style.maxHeight = null;
             });
-            
+
             // Open clicked item if it was closed
             if (!isActive) {
                 item.classList.add('active');
@@ -316,13 +316,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const whatsappTrigger = document.getElementById('whatsappTrigger');
     const whatsappPopup = document.getElementById('whatsappPopup');
     const closePopup = document.getElementById('closePopup');
-    
+
     if (whatsappTrigger && whatsappPopup) {
         // Toggle popup
         whatsappTrigger.addEventListener('click', (e) => {
             e.stopPropagation();
             whatsappPopup.classList.toggle('active');
-            
+
             // Remove the unread notification badge once clicked
             const badge = whatsappTrigger.querySelector('.whatsapp-badge');
             if (badge) {
@@ -350,8 +350,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const studentNames = ["أحمد عبد الله", "سارة العتيبي", "محمد القحطاني", "نورة الدوسري", "فيصل الحربي", "ريم المطيري", "عبد العزيز الشمري", "شهد العنزي", "فهد الزهراني", "ليان السبيعي"];
     const universities = ["جامعة الملك فهد بن سلطان", "جامعة الأمير مقرن", "جامعة عفت", "جامعة الباحة", "جامعة الملك سعود", "جامعة الملك عبد العزيز", "جامعة جدة", "جامعة أم القرى"];
     const grades = ["A+", "A", "A+"];
-    const gpas = ["5.00 / 5.00", "4.98 / 5.00", "4.95 / 5.00", "4.89 / 5.00"];
-    const percentages = ["100%", "98%", "99%", "100%", "97%"];
+    const gpas = ["100%", "99.98%", "99.97%", "100%"];
+    const percentages = ["100%", "98%", "99%", "100%", "99%"];
 
     const studentNameEl = document.querySelector('.student-name');
     const studentUniEl = document.querySelector('.student-uni');
@@ -362,31 +362,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainCard = document.querySelector('.main-card');
     const floatBadge1 = document.querySelector('.float-badge-1');
     const floatBadge2 = document.querySelector('.float-badge-2');
-    
+
     if (studentNameEl && mainCard) {
         // Add transition style inline or via CSS for smooth fading
         mainCard.style.transition = "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)";
-        if(floatBadge1) floatBadge1.style.transition = "opacity 0.4s ease";
-        if(floatBadge2) floatBadge2.style.transition = "opacity 0.4s ease";
+        if (floatBadge1) floatBadge1.style.transition = "opacity 0.4s ease";
+        if (floatBadge2) floatBadge2.style.transition = "opacity 0.4s ease";
 
         setInterval(() => {
             // Add a brief fade-out effect for transition
             mainCard.style.opacity = '0.4';
             mainCard.style.transform = 'scale(0.97)';
-            if(floatBadge1) floatBadge1.style.opacity = '0';
-            if(floatBadge2) floatBadge2.style.opacity = '0';
-            
+            if (floatBadge1) floatBadge1.style.opacity = '0';
+            if (floatBadge2) floatBadge2.style.opacity = '0';
+
             setTimeout(() => {
                 const randomName = studentNames[Math.floor(Math.random() * studentNames.length)];
                 const randomUni = universities[Math.floor(Math.random() * universities.length)];
                 const randomGrade = grades[Math.floor(Math.random() * grades.length)];
                 const randomGpa = gpas[Math.floor(Math.random() * gpas.length)];
-                
+
                 studentNameEl.textContent = randomName;
                 studentUniEl.textContent = randomUni;
                 gradeBadgeEl.textContent = randomGrade;
                 gpaNumEl.textContent = randomGpa;
-                
+
                 chartValues.forEach(cv => {
                     cv.textContent = percentages[Math.floor(Math.random() * percentages.length)];
                 });
@@ -397,16 +397,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Fade back in
                 mainCard.style.opacity = '1';
                 mainCard.style.transform = 'scale(1) translateY(-5px)'; // Added slight float effect
-                if(floatBadge1) floatBadge1.style.opacity = '1';
-                if(floatBadge2) floatBadge2.style.opacity = '1';
-                
+                if (floatBadge1) floatBadge1.style.opacity = '1';
+                if (floatBadge2) floatBadge2.style.opacity = '1';
+
                 // reset transform after hover effect simulation
                 setTimeout(() => {
                     mainCard.style.transform = 'scale(1) translateY(0)';
                 }, 500);
 
             }, 400); // Wait for fade out to complete
-            
+
         }, 5000); // Changes every 5 seconds for live feed effect
     }
 

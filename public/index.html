@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام الإرسال الجماعي الذكي | Antigravity Mailer</title>
+  <!-- Google Fonts for elite typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Style stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Glassmorphic Navigation -->
+  <header class="app-header">
+    <div class="header-logo">
+      <div class="logo-icon">
+        <i class="fa-solid fa-paper-plane plane-glow"></i>
+      </div>
+      <div class="logo-text">
+        <h1>أنتيجرافيتي <span>ميلر</span></h1>
+        <p>نظام الإرسال الجماعي المتطور ذو التحكم الفوري</p>
+      </div>
+    </div>
+    <div class="header-status">
+      <div id="connectionPill" class="status-pill disconnected">
+        <span class="pulse-dot"></span>
+        <span class="status-text">غير متصل بالخادم</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Grid Layout -->
+  <main class="app-container">
+    
+    <!-- Right Panel: Configurations & Input Tabs -->
+    <section class="panel-control">
+      <!-- Custom Glass Tab Switcher -->
+      <div class="tab-switcher">
+        <button class="tab-btn active" onclick="switchTab('smtp-tab')">
+          <i class="fa-solid fa-server"></i>
+          إعدادات الـ SMTP
+        </button>
+        <button class="tab-btn" onclick="switchTab('recipients-tab')">
+          <i class="fa-solid fa-users"></i>
+          قائمة المستلمين
+          <span class="badge" id="recipientsCountBadge">0</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('composer-tab')">
+          <i class="fa-solid fa-pen-nib"></i>
+          منشئ الرسالة
+        </button>
+      </div>
+
+      <!-- Tab Content 1: SMTP Settings -->
+      <div id="smtp-tab" class="tab-content active">
+        <div class="glass-card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-gears card-icon"></i>إعدادات خادم البريد (SMTP)</h3>
+            <p>قم بضبط وتجربة إعدادات خادم الإرسال لتأمين حملتك البريدية.</p>
+          </div>
+          <form id="smtpForm" class="grid-form">
+            <div class="form-group span-2">
+              <label for="smtpHost">مضيف SMTP (Host)</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-network-wired"></i>
+                <input type="text" id="smtpHost" placeholder="مثال: smtp.gmail.com" required>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="smtpPort">المنفذ (Port)</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-door-open"></i>
+                <input type="number" id="smtpPort" placeholder="587" value="587" required>
+              </div>
+            </div>
+
+            <div class="form-group toggle-group">
+              <label>الأمان (SSL/TLS)</label>
+              <label class="switch">
+                <input type="checkbox" id="smtpSecure">
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="form-group span-2">
+              <label for="smtpUser">اسم المستخدم / البريد الإلكتروني</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="email" id="smtpUser" placeholder="your-email@domain.com" required>
+              </div>
+            </div>
+
+            <div class="form-group span-2">
+              <label for="smtpPass">كلمة المرور (أو كلمة مرور التطبيق)</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="smtpPass" placeholder="••••••••••••••••" required>
+              </div>
+              <small class="form-hint">لبريد Gmail، يرجى استخدام "كلمة مرور التطبيق" (App Password) وليس كلمة مرور حسابك العادية.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="fromName">اسم المرسل الظاهري</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-user-tag"></i>
+                <input type="text" id="fromName" placeholder="أنتيجرافيتي">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="fromEmail">بريد المرسل البديل (اختياري)</label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-reply"></i>
+                <input type="email" id="fromEmail" placeholder="leave blank to use user email">
+              </div>
+            </div>
+
+            <div class="form-actions span-2">
+              <button type="button" id="btnTestSmtp" class="btn btn-secondary">
+                <i class="fa-solid fa-vial"></i>
+                <span>فحص الاتصال</span>
+              </button>
+              <button type="submit" id="btnSaveSmtp" class="btn btn-primary">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>حفظ التكوين</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Tab Content 2: Recipients Database -->
+      <div id="recipients-tab" class="tab-content">
+        <div class="glass-card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-file-csv card-icon"></i>استيراد وإدارة المستلمين</h3>
+            <p>يمكنك رفع ملف CSV يحتوي على الأعمدة أو كتابتها يدوياً. النظام يدعم التخصيص التلقائي.</p>
+          </div>
+
+          <!-- CSV Drag and Drop Zone -->
+          <div class="drag-zone" id="csvDragZone">
+            <input type="file" id="csvFileInput" accept=".csv,.txt" style="display: none;">
+            <i class="fa-solid fa-cloud-arrow-up drag-icon"></i>
+            <h4>اسحب وأسقط ملف CSV هنا</h4>
+            <p>أو انقر لتصفح ملفات جهازك</p>
+            <span class="file-format-hint">تأكد من احتواء الملف على أعمدة مثل: name, email أو الاسم، البريد</span>
+          </div>
+
+          <div class="divider-text">أو قم بلصق البيانات يدوياً</div>
+
+          <!-- Manual Input Area -->
+          <div class="form-group">
+            <label for="manualRecipients">أدخل البريد الإلكتروني والاسم (كل سطر مستلم جديد)</label>
+            <div class="manual-input-container">
+              <textarea id="manualRecipients" rows="5" placeholder="ahmad@example.com, أحمد&#10;sara@example.com, سارة&#10;khaled@example.com, خالد"></textarea>
+            </div>
+            <button type="button" id="btnParseManual" class="btn btn-accent mt-2">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> معالجة وإضافة للمسودة
+            </button>
+          </div>
+
+          <!-- Recipient Data Grid Preview -->
+          <div class="recipients-preview-container hide" id="previewContainer">
+            <div class="preview-header-bar">
+              <h4>مستندات المستلمين المستوردة (<span id="parsedTotalCount">0</span>)</h4>
+              <button type="button" id="btnClearRecipients" class="btn-icon-danger" title="حذف القائمة">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+            <div class="table-scroll">
+              <table class="recipients-table" id="recipientsTable">
+                <thead>
+                  <!-- Generated Dynamically -->
+                </thead>
+                <tbody>
+                  <!-- Generated Dynamically -->
+                </tbody>
+              </table>
+            </div>
+            <div class="validity-indicator">
+              <span class="valid"><i class="fa-solid fa-circle-check"></i> <span id="validEmailsCount">0</span> بريد إلكتروني صالح</span>
+              <span class="invalid"><i class="fa-solid fa-circle-xmark"></i> <span id="invalidEmailsCount">0</span> بريد إلكتروني غير صالح أو فارغ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content 3: Campaign Composer -->
+      <div id="composer-tab" class="tab-content">
+        <div class="glass-card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-paperplane card-icon"></i>منشئ الرسالة وإطلاق الحملة</h3>
+            <p>قم بصياغة رسالتك البريدية وتطعيمها بمتغيرات مخصصة لكل مستلم بشكل تفاعلي.</p>
+          </div>
+
+          <div class="form-group">
+            <label for="mailSubject">موضوع الرسالة (Subject)</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-signature"></i>
+              <input type="text" id="mailSubject" placeholder="أهلاً بك يا {{name}} في منصتنا!" required>
+            </div>
+          </div>
+
+          <!-- Variables Badges Picker -->
+          <div class="variables-picker">
+            <span>انقر لإدراج متغير مخصص:</span>
+            <div class="variables-badges" id="dynamicVariablesBadges">
+              <button class="var-badge" onclick="insertVariable('name')"><i class="fa-solid fa-user"></i> {{name}}</button>
+              <button class="var-badge" onclick="insertVariable('email')"><i class="fa-solid fa-at"></i> {{email}}</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="label-with-action">
+              <label for="mailBody">محتوى البريد الإلكتروني (يدعم HTML كامل)</label>
+              <div class="composer-mode-selector">
+                <button class="mode-btn active" id="btnRichEditor" onclick="setComposerMode('rich')"><i class="fa-solid fa-code"></i> محرّر مرئي / HTML</button>
+              </div>
+            </div>
+            <div class="editor-wrapper">
+              <textarea id="mailBody" rows="12" placeholder="<div style='font-family: sans-serif; padding: 20px;'>
+  <h2>مرحباً {{name}} 👋</h2>
+  <p>سعداء بانضمامك إلينا عبر البريد {{email}}.</p>
+</div>"></textarea>
+            </div>
+          </div>
+
+          <!-- Sending Delay Control -->
+          <div class="form-group delay-slider-group">
+            <div class="slider-header">
+              <label for="sendingDelay">الفاصل الزمني بين الرسائل: <span id="delayDisplay">2</span> ثانية</label>
+              <span class="delay-badge">لحماية حسابك من السبام</span>
+            </div>
+            <input type="range" id="sendingDelay" min="1" max="15" value="2" class="range-slider">
+          </div>
+
+          <!-- Campaign Attachments & Images -->
+          <div class="form-group mt-4">
+            <label><i class="fa-solid fa-paperclip card-icon glow-cyan"></i> إرفاق ملفات أو صور إضافية</label>
+            <div class="attachments-upload-box" id="attachmentsDropZone">
+              <input type="file" id="emailAttachments" multiple style="display: none;">
+              <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+              <span>انقر لتصفح الملفات أو اسحبها هنا للرفع</span>
+            </div>
+            <div class="uploaded-files-list hide" id="attachmentListPreview">
+              <!-- Dynamically generated badges -->
+            </div>
+            <small class="form-hint">لتضمين الصور بداخل كود الـ HTML، أرفق الصورة ثم استخدمها كـ: <code>&lt;img src="cid:اسم_الملف.png"&gt;</code></small>
+          </div>
+
+          <!-- Send Action Trigger -->
+          <div class="composer-action mt-4">
+            <button type="button" id="btnLaunchCampaign" class="btn btn-launch btn-lg">
+              <i class="fa-solid fa-rocket animate-float"></i>
+              <span>إطلاق الحملة البريدية المباشرة</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Left Panel: Campaign Monitor & Interactive Live Preview -->
+    <section class="panel-monitor">
+      
+      <!-- Live Real-Time Campaign Stats Dashboard -->
+      <div class="glass-card monitor-card">
+        <div class="card-header status-header">
+          <div class="header-left">
+            <h3><i class="fa-solid fa-chart-line card-icon glow-cyan"></i>غرفة عمليات الإرسال الفوري</h3>
+            <p>تابع تقدم ومستوى تسليم رسائلك بنبضات تفاعلية حية.</p>
+          </div>
+          <div class="campaign-status-label" id="campaignStatusLabel">الحالة: خامل</div>
+        </div>
+
+        <!-- Dashboard Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card total">
+            <div class="stat-icon"><i class="fa-solid fa-users-line"></i></div>
+            <div class="stat-info">
+              <span class="stat-num" id="statTotal">0</span>
+              <span class="stat-label">المجموع الكلي</span>
+            </div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="stat-info">
+              <span class="stat-num" id="statSuccess">0</span>
+              <span class="stat-label">تم الإرسال بنجاح</span>
+            </div>
+          </div>
+          <div class="stat-card fail">
+            <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div class="stat-info">
+              <span class="stat-num" id="statFail">0</span>
+              <span class="stat-label">عثرات / أخطاء</span>
+            </div>
+          </div>
+          <div class="stat-card progress-perc">
+            <div class="stat-icon"><i class="fa-solid fa-percent"></i></div>
+            <div class="stat-info">
+              <span class="stat-num" id="statPercentage">0%</span>
+              <span class="stat-label">نسبة الإنجاز</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Animated Progress Bar -->
+        <div class="campaign-progress-bar-wrapper">
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="campaignProgressBar" style="width: 0%;"></div>
+            <div class="progress-bar-glow" id="campaignProgressBarGlow" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Campaign Play/Pause/Stop Buttons -->
+        <div class="campaign-controls-bar hide" id="campaignControls">
+          <button type="button" id="btnPauseCampaign" class="btn btn-warning">
+            <i class="fa-solid fa-pause"></i> <span>تعليق مؤقت</span>
+          </button>
+          <button type="button" id="btnResumeCampaign" class="btn btn-success hide">
+            <i class="fa-solid fa-play"></i> <span>استئناف الإرسال</span>
+          </button>
+          <button type="button" id="btnStopCampaign" class="btn btn-danger">
+            <i class="fa-solid fa-stop"></i> <span>إلغاء الحملة</span>
+          </button>
+        </div>
+
+        <!-- Dynamic Live Email Preview screen -->
+        <div class="live-preview-box mt-4">
+          <div class="preview-box-header">
+            <span class="preview-dot dot-red"></span>
+            <span class="preview-dot dot-yellow"></span>
+            <span class="preview-dot dot-green"></span>
+            <span class="preview-title"><i class="fa-solid fa-magnifying-glass"></i> شاشة المعاينة الديناميكية للبريد المخصص</span>
+          </div>
+          
+          <div class="preview-email-headers">
+            <div><strong>إلى:</strong> <span id="previewToEmail" class="preview-text-highlight">لم يتم تحديد مستلم</span></div>
+            <div><strong>الموضوع:</strong> <span id="previewSubject" class="preview-text-highlight">لا يوجد موضوع</span></div>
+          </div>
+          
+          <!-- Mockup Frame container for rendering dynamic HTML safely -->
+          <div class="preview-iframe-wrapper">
+            <iframe id="emailPreviewIframe" sandbox="allow-same-origin" srcdoc="<p style='color:#9ca3af; font-family:sans-serif; text-align:center; padding-top:40px;'>اكتب محتوى بريد أو قم بتحديد مستلم من القائمة لمشاهدة معاينة حية بالبيانات الحقيقية هنا.</p>"></iframe>
+          </div>
+        </div>
+
+        <!-- Real-Time Activity Log Terminal -->
+        <div class="terminal-logs mt-4">
+          <div class="terminal-header">
+            <span><i class="fa-solid fa-terminal"></i> سجل العمليات الفوري (Live Output)</span>
+            <button id="btnClearLogs" class="btn-clear-terminal" title="تنظيف السجل"><i class="fa-solid fa-eraser"></i></button>
+          </div>
+          <div class="terminal-body" id="terminalLogsBody">
+            <div class="log-line info">
+              <span class="log-time">[00:00:00]</span>
+              <span class="log-msg">نظام أنتيجرافيتي جاهز وبانتظار بدء الحملة...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Gorgeous Glassmorphic Alerts Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Custom JS Application File -->
+  <script src="app.js"></script>
+</body>
+</html>

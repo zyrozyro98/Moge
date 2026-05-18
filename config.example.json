@@ -1,0 +1,9 @@
+{
+  "host": "smtp.gmail.com",
+  "port": 587,
+  "secure": false,
+  "user": "your-email@gmail.com",
+  "pass": "your-app-password-without-spaces",
+  "fromName": "Your Sender Name",
+  "fromEmail": "your-email@gmail.com"
+}

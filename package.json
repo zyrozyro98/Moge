@@ -1,0 +1,16 @@
+{
+  "name": "antigravity-bulk-mailer",
+  "version": "1.0.0",
+  "description": "Premium bulk email sender with real-time tracking, SMTP configuration, custom HTML templates, and placeholder injection.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "nodemailer": "^6.9.13",
+    "multer": "^1.4.5-lts.1"
+  },
+  "private": true
+}

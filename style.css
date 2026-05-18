@@ -2587,3 +2587,70 @@ h1, h2, h3, h4, h5, h6 {
         padding: 15px 20px;
     }
 }
+
+/* 10. Scroll Reveal Animations */
+.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+.reveal.fade-left {
+    transform: translateX(-40px);
+}
+.reveal.fade-right {
+    transform: translateX(40px);
+}
+.reveal.fade-left.active, .reveal.fade-right.active {
+    transform: translateX(0);
+}
+
+/* 11. Sticky Social Bar */
+.sticky-social-bar {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-left: none;
+    border-radius: 0 15px 15px 0;
+    box-shadow: 5px 5px 20px rgba(0,0,0,0.05);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+.sticky-social-bar a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    color: var(--text-heading);
+    font-size: 18px;
+    text-decoration: none;
+    transition: var(--transition-smooth);
+    border-bottom: 1px solid var(--border-color);
+}
+.sticky-social-bar a:last-child {
+    border-bottom: none;
+}
+.sticky-social-bar a:hover {
+    color: #fff;
+}
+.sticky-social-bar a.snapchat:hover { background: #fffc00; color: #000; }
+.sticky-social-bar a.instagram:hover { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+.sticky-social-bar a.twitter:hover { background: #000000; }
+.sticky-social-bar a.facebook:hover { background: #1877f2; }
+
+@media (max-width: 768px) {
+    .sticky-social-bar {
+        display: none;
+    }
+}

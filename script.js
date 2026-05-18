@@ -410,4 +410,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000); // Changes every 5 seconds for live feed effect
     }
 
+
+    // 11. Intersection Observer for Scroll Reveal Animations
+    const revealElements = document.querySelectorAll('.reveal');
+    const revealOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px"
+    };
+
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target); // Optional: animate only once
+            }
+        });
+    }, revealOptions);
+
+    revealElements.forEach(el => {
+        revealObserver.observe(el);
+    });
+
 });

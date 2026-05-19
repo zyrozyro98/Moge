@@ -1,0 +1,163 @@
+{
+  "accounts": [
+    {
+      "host": "smtp.gmail.com",
+      "port": 587,
+      "secure": false,
+      "user": "zyro8246@gmail.com",
+      "pass": "ynjkkmexfjsougrp",
+      "fromName": "جامعة عفت",
+      "fromEmail": "zyro8246@gmail.com",
+      "customSubject": "الو",
+      "customHtml": "الووو",
+      "recipients": [
+        {
+          "email": "zyrozyro84@gmail.com",
+          "name": "zyrozyro84"
+        }
+      ],
+      "isActive": true,
+      "attachment": {
+        "filename": "logo-v.png",
+        "path": "uploads/4ceb42ecc7b9ac87af73e56cae9cfe10"
+      }
+    },
+    {
+      "host": "smtp.gmail.com",
+      "port": 587,
+      "secure": false,
+      "user": "aldeennajem76@gmail.com",
+      "pass": "tjnrruwdwmlxqcor",
+      "fromName": "جامعة__عفت",
+      "fromEmail": "aldeennajem76@gmail.com",
+      "customSubject": "",
+      "customHtml": "",
+      "isActive": false
+    },
+    {
+      "host": "smtp.gmail.com",
+      "port": 587,
+      "secure": false,
+      "user": "zyrozyro002@gmail.com",
+      "pass": "kskxnyivbzduqrho",
+      "fromName": "جامعة_عفت",
+      "fromEmail": "zyrozyro002@gmail.com",
+      "customSubject": "صورة الحضور عنك بالمحاضرة (إثبات الحضور)",
+      "customHtml": "السلام عليكم\n",
+      "recipients": [
+        {
+          "email": "zyrozyro98@gmail.com",
+          "name": "zyrozyro98"
+        },
+        {
+          "email": "zyrozyro202@gmail.com",
+          "name": "zyrozyro202"
+        }
+      ],
+      "isActive": false,
+      "attachment": {
+        "filename": "حضور عفت.jpg",
+        "path": "uploads/55ee4d5257006c195c5665683fe90855"
+      }
+    },
+    {
+      "host": "smtp.gmail.com",
+      "port": 587,
+      "secure": false,
+      "user": "rahafalqahtaniy@gmail.com",
+      "pass": "wqwospbgrubethwm",
+      "fromName": "الجامعة (عفت)",
+      "fromEmail": "rahafalqahtaniy@gmail.com",
+      "customSubject": "",
+      "customHtml": "",
+      "isActive": false
+    },
+    {
+      "host": "smtp.gmail.com",
+      "port": 587,
+      "secure": false,
+      "user": "rahafaaa377@gmail.com",
+      "pass": "qoizokbgtloaocqs",
+      "fromName": "تحضير جامعة عفت",
+      "fromEmail": "rahafaaa377@gmail.com",
+      "customSubject": "",
+      "customHtml": "",
+      "isActive": false
+    },
+    {
+      "host": "smtp.gmail.com",
+      "port": 587,
+      "secure": false,
+      "user": "diplomalaine399@gmail.com",
+      "pass": "zntvtmffmbpjpnta",
+      "fromName": "تحضير جامعة (عفت)",
+      "fromEmail": "diplomalaine399@gmail.com",
+      "customSubject": "",
+      "customHtml": "",
+      "isActive": false
+    },
+    {
+      "host": "smtp.gmail.com",
+      "port": 587,
+      "secure": false,
+      "user": "diplomaline601@gmail.com",
+      "pass": "eujtifkeimkvomrl",
+      "fromName": "حضور المحاضرات",
+      "fromEmail": "diplomaline601@gmail.com",
+      "customSubject": "",
+      "customHtml": "",
+      "isActive": false
+    },
+    {
+      "host": "smtp.gmail.com",
+      "port": 587,
+      "secure": false,
+      "user": "z8751453@gmail.com",
+      "pass": "plfehilerssjxtox",
+      "fromName": "إرسال الحضور اليومي",
+      "fromEmail": "z8751453@gmail.com",
+      "customSubject": "صورة التحضير اليوم",
+      "customHtml": "السلام عليكم\nهذه صورة إثبات حضورك لمحاضرة يوم الأحد.\n",
+      "recipients": [
+        {
+          "email": "zyrozyro002@gmail.com",
+          "name": "zyrozyro002"
+        },
+        {
+          "email": "zyrozyro84@gmail.com",
+          "name": "zyrozyro84"
+        }
+      ],
+      "isActive": false,
+      "attachment": {
+        "filename": "دبلومالاين.jpg",
+        "path": "uploads/134d664c64589c8f4b002902d0eea5e4"
+      }
+    },
+    {
+      "host": "smtp.gmail.com",
+      "port": 587,
+      "secure": false,
+      "user": "zyro9030@gmail.com",
+      "pass": "qxvnlaawxvddqczu",
+      "fromName": "إرسال الحضور جامعة عفت",
+      "fromEmail": "zyro9030@gmail.com",
+      "customSubject": "",
+      "customHtml": "",
+      "isActive": false
+    },
+    {
+      "host": "smtp.gmail.com",
+      "port": 587,
+      "secure": false,
+      "user": "zyro10220@gmail.com",
+      "pass": "ydeghlvoaloncnue",
+      "fromName": "صور حضور جامعة عفت التحضير اليومي",
+      "fromEmail": "zyro10220@gmail.com",
+      "customSubject": "",
+      "customHtml": "",
+      "recipients": [],
+      "isActive": false
+    }
+  ]
+}

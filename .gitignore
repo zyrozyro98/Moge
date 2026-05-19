@@ -1,12 +1,12 @@
 # Dependencies
 node_modules/
 
-# Local sensitive configuration (Do NOT upload to GitHub)
-config.json
+# Local sensitive configuration (Do NOT upload to GitHub if public)
+# config.json
 
 # Temporary uploaded attachments
-uploads/*
-!uploads/.gitkeep
+# uploads/*
+# !uploads/.gitkeep
 
 # System and OS Files
 .DS_Store

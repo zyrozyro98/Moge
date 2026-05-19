@@ -3309,6 +3309,39 @@ p {
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15) !important;
 }
 
+/* Premium Footer Social Buttons Overrides for Visibility */
+.social-btn {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #475569 !important; /* Premium visible slate color instead of white */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02) !important;
+    border-radius: var(--radius-md) !important;
+}
+.social-btn:hover {
+    color: #ffffff !important; /* Stand out beautifully on high-contrast color backgrounds */
+}
+.social-btn.snapchat:hover {
+    background: linear-gradient(135deg, #fffc00 0%, #ffd000 100%) !important;
+    box-shadow: 0 5px 15px rgba(255, 252, 0, 0.3) !important;
+    border-color: #ffd000 !important;
+}
+.social-btn.instagram:hover {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+    box-shadow: 0 5px 15px rgba(204, 35, 102, 0.3) !important;
+    border-color: transparent !important;
+}
+.social-btn.twitter:hover {
+    background: #000000 !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+    border-color: #000000 !important;
+}
+.social-btn.facebook:hover {
+    background: #1877f2 !important;
+    box-shadow: 0 5px 15px rgba(24, 119, 242, 0.3) !important;
+    border-color: #1877f2 !important;
+}
+
+
 
 
 

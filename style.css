@@ -2657,3 +2657,155 @@ h1, h2, h3, h4, h5, h6 {
         display: none;
     }
 }
+
+/* ==========================================================================
+   FINAL PROFESSIONAL LIGHT ACADEMIC THEME OVERRIDES
+   ========================================================================== */
+:root {
+    --bg-dark-deep: #ffffff;
+    --bg-dark-card: #ffffff;
+    --border-color: #e2e8f0;
+    --border-color-hover: #cbd5e1;
+    --shadow-premium: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+    --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+    --primary-gradient: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    --secondary-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+}
+
+body {
+    background-color: #f8fafc; /* Light slate body background */
+}
+
+/* 1. Navbar Overrides */
+.main-header {
+    border-bottom: 1px solid #f1f5f9;
+}
+.main-header.scrolled {
+    background: rgba(255, 255, 255, 0.98);
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+}
+
+/* 2. Cards Flat & Crisp Design */
+.feature-card, .service-card, .group-card, .testimonial-card, .partner-logo-card, .visual-card, .registration-form-wrapper, .calc-panel, .calc-result-panel, .faq-item {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02) !important;
+    backdrop-filter: none !important;
+    border-radius: var(--radius-lg);
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover, .service-card:hover, .group-card:hover, .testimonial-card:hover, .partner-logo-card:hover, .visual-card:hover {
+    transform: translateY(-4px) !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* 3. Buttons Solid Colors */
+.btn-primary {
+    background: #1e3a8a !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 6px -1px rgba(30, 58, 138, 0.2) !important;
+    border: none !important;
+}
+.btn-primary:hover {
+    background: #1e40af !important;
+    box-shadow: 0 6px 12px -1px rgba(30, 58, 138, 0.3) !important;
+}
+
+.btn-secondary {
+    background: #ffffff !important;
+    color: #1e3a8a !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+.btn-secondary:hover {
+    background: #f8fafc !important;
+    border-color: #94a3b8 !important;
+    color: #1e40af !important;
+}
+
+/* 4. Background Glow Orbs Hidden/Faded */
+.glow-orb {
+    opacity: 0.01 !important; /* Extremely faint */
+}
+
+/* 5. Inputs and Forms */
+.form-control, .uni-select {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+}
+.form-control:focus, .uni-select:focus {
+    background: #ffffff !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+}
+.input-with-icon i {
+    color: #64748b !important;
+}
+.input-with-icon input:focus ~ i {
+    color: #2563eb !important;
+}
+
+/* 6. Fix Sections Backgrounds */
+.services-section, .features-section, .partners-section {
+    background: #ffffff !important;
+}
+.hero-section, .pricing-section, .testimonials-section, .faq-section {
+    background: #f8fafc !important;
+}
+
+/* 7. Footer Crispness */
+.main-footer {
+    background: #ffffff !important;
+    border-top: 1px solid #e2e8f0 !important;
+}
+.footer-desc {
+    color: #475569 !important;
+}
+.footer-nav ul a, .footer-services ul a {
+    color: #475569 !important;
+}
+.footer-nav ul a:hover, .footer-services ul a:hover {
+    color: #2563eb !important;
+}
+
+/* 8. Text Overrides */
+.section-subtitle {
+    color: #d97706 !important; /* Gold */
+    background: rgba(217, 119, 6, 0.1) !important;
+    border: 1px solid rgba(217, 119, 6, 0.2) !important;
+}
+.section-title {
+    color: #0f172a !important; /* Very dark slate */
+}
+.section-desc {
+    color: #475569 !important;
+}
+.card-title, h3, h4 {
+    color: #1e293b !important;
+}
+p {
+    color: #475569;
+}
+
+/* 9. Misc Enhancements */
+.student-info .student-name {
+    color: #0f172a !important;
+}
+.price-currency {
+    color: #64748b !important;
+}
+.price-period {
+    color: #64748b !important;
+}
+.general-group-banner {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03) !important;
+}
+.general-group-banner h3 {
+    color: #0f172a !important;
+}

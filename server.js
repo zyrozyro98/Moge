@@ -37,8 +37,56 @@ if (DATA_DIR !== __dirname && !fs.existsSync(CONFIG_FILE) && fs.existsSync(DEFAU
   }
 }
 
+const { Client } = require('pg');
+
+let pgClient = null;
+const DATABASE_URL = process.env.DATABASE_URL;
+
+if (DATABASE_URL) {
+  pgClient = new Client({
+    connectionString: DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+  pgClient.connect()
+    .then(async () => {
+      console.log('Connected to PostgreSQL successfully!');
+      // Initialize tables
+      await pgClient.query(`
+        CREATE TABLE IF NOT EXISTS config_store (
+          key VARCHAR(50) PRIMARY KEY,
+          value TEXT
+        );
+      `);
+      await pgClient.query(`
+        CREATE TABLE IF NOT EXISTS file_store (
+          filepath VARCHAR(255) PRIMARY KEY,
+          filename VARCHAR(255),
+          content TEXT
+        );
+      `);
+    })
+    .catch(err => {
+      console.error('PostgreSQL connection error:', err);
+    });
+}
+
 // Helper to load SMTP configuration
-function loadConfig() {
+async function loadConfig() {
+  if (pgClient) {
+    try {
+      const res = await pgClient.query('SELECT value FROM config_store WHERE key = $1', ['app_config']);
+      if (res.rows.length > 0) {
+        const data = JSON.parse(res.rows[0].value);
+        if (!data.accounts) {
+          data.accounts = [];
+        }
+        return data;
+      }
+    } catch (err) {
+      console.error('Error loading config from PostgreSQL:', err);
+    }
+  }
+
   if (fs.existsSync(CONFIG_FILE)) {
     try {
       const data = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
@@ -54,7 +102,20 @@ function loadConfig() {
 }
 
 // Helper to save SMTP configuration
-function saveConfig(config) {
+async function saveConfig(config) {
+  if (pgClient) {
+    try {
+      await pgClient.query(
+        'INSERT INTO config_store (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value',
+        ['app_config', JSON.stringify(config)]
+      );
+      return true;
+    } catch (err) {
+      console.error('Error saving config to PostgreSQL:', err);
+      return false;
+    }
+  }
+
   try {
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf8');
     return true;
@@ -130,7 +191,7 @@ function cleanUploadedFiles(files) {
 // Global Campaign Runner Loop (Round-Robin among Active SMTP Accounts)
 async function runCampaign() {
   try {
-    const config = loadConfig();
+    const config = await loadConfig();
     const activeAccounts = (config.accounts || []).filter(acc => acc.isActive);
     
     if (activeAccounts.length === 0) {
@@ -300,18 +361,40 @@ async function runAccountCampaign(account, globalDelay) {
 
     const attachments = [];
     if (account.attachment && account.attachment.path) {
-      const attPath = path.join(DATA_DIR, account.attachment.path);
-      if (fs.existsSync(attPath)) {
-        let safeName = account.attachment.filename;
-        try {
-          safeName = Buffer.from(account.attachment.filename, 'latin1').toString('utf8');
-        } catch (e) {}
+      let safeName = account.attachment.filename;
+      try {
+        safeName = Buffer.from(account.attachment.filename, 'latin1').toString('utf8');
+      } catch (e) {}
 
-        attachments.push({
+      const attPath = path.join(DATA_DIR, account.attachment.path);
+      let fileContent = null;
+      let isLocal = false;
+
+      if (fs.existsSync(attPath)) {
+        fileContent = fs.readFileSync(attPath);
+        isLocal = true;
+      } else if (pgClient) {
+        try {
+          const res = await pgClient.query('SELECT content FROM file_store WHERE filepath = $1', [account.attachment.path]);
+          if (res.rows.length > 0) {
+            fileContent = Buffer.from(res.rows[0].content, 'base64');
+          }
+        } catch (err) {
+          console.error('Error loading file from PostgreSQL for email:', err);
+        }
+      }
+
+      if (fileContent) {
+        const attachObj = {
           filename: safeName,
-          path: attPath,
           cid: 'attachment_image'
-        });
+        };
+        if (isLocal) {
+          attachObj.path = attPath;
+        } else {
+          attachObj.content = fileContent;
+        }
+        attachments.push(attachObj);
 
         // Auto-embed image at bottom if it's an image file and not already referenced via CID in template
         const isImg = /\.(png|jpe?g|gif|webp|bmp)$/i.test(safeName);
@@ -392,8 +475,8 @@ async function runMultiCampaign(activeAccounts, globalDelay) {
 // --- API ROUTES ---
 
 // 1. Get configuration (multiple accounts support)
-app.get('/api/config', (req, res) => {
-  const config = loadConfig();
+app.get('/api/config', async (req, res) => {
+  const config = await loadConfig();
   const maskedAccounts = (config.accounts || []).map(acc => {
     const masked = { ...acc };
     if (masked.pass) {
@@ -408,9 +491,9 @@ app.get('/api/config', (req, res) => {
 });
 
 // 2. Save SMTP Account (Add or Update)
-app.post('/api/config/save-account', (req, res) => {
+app.post('/api/config/save-account', async (req, res) => {
   const { index, host, port, secure, user, pass, fromName, fromEmail, customSubject, customHtml, recipients, isActive } = req.body;
-  const config = loadConfig();
+  const config = await loadConfig();
   const accounts = config.accounts || [];
 
   const targetIdx = parseInt(index);
@@ -457,7 +540,7 @@ app.post('/api/config/save-account', (req, res) => {
   }
 
   config.accounts = accounts;
-  if (saveConfig(config)) {
+  if (await saveConfig(config)) {
     res.json({ success: true, message: 'تم حفظ إعدادات الحساب بنجاح!' });
   } else {
     res.status(500).json({ success: false, message: 'فشل حفظ الإعدادات.' });
@@ -465,9 +548,9 @@ app.post('/api/config/save-account', (req, res) => {
 });
 
 // 3. Delete SMTP Account
-app.post('/api/config/delete-account', (req, res) => {
+app.post('/api/config/delete-account', async (req, res) => {
   const { index } = req.body;
-  const config = loadConfig();
+  const config = await loadConfig();
   const accounts = config.accounts || [];
   const idx = parseInt(index);
 
@@ -480,10 +563,17 @@ app.post('/api/config/delete-account', (req, res) => {
           if (err) console.error('Error deleting attachment file:', err);
         });
       }
+      if (pgClient) {
+        try {
+          await pgClient.query('DELETE FROM file_store WHERE filepath = $1', [account.attachment.path]);
+        } catch (err) {
+          console.error('Failed to delete file from PG:', err);
+        }
+      }
     }
     accounts.splice(idx, 1);
     config.accounts = accounts;
-    if (saveConfig(config)) {
+    if (await saveConfig(config)) {
       return res.json({ success: true, message: 'تم حذف الحساب بنجاح!' });
     }
   }
@@ -491,13 +581,13 @@ app.post('/api/config/delete-account', (req, res) => {
 });
 
 // 4. Upload Attachment for Specific Account
-app.post('/api/config/upload-attachment', upload.single('attachment'), (req, res) => {
+app.post('/api/config/upload-attachment', upload.single('attachment'), async (req, res) => {
   const { index } = req.body;
   if (!req.file) {
     return res.status(400).json({ success: false, message: 'لم يتم إرفاق أي ملف للرفع!' });
   }
 
-  const config = loadConfig();
+  const config = await loadConfig();
   const accounts = config.accounts || [];
   const idx = parseInt(index);
 
@@ -510,23 +600,42 @@ app.post('/api/config/upload-attachment', upload.single('attachment'), (req, res
           if (err) console.error('Error deleting old attachment file:', err);
         });
       }
+      if (pgClient) {
+        try {
+          await pgClient.query('DELETE FROM file_store WHERE filepath = $1', [account.attachment.path]);
+        } catch (err) {
+          console.error('Failed to delete old file from PG:', err);
+        }
+      }
     }
 
-    const relPath = path.relative(DATA_DIR, req.file.path);
+    const relPath = path.relative(DATA_DIR, req.file.path).replace(/\\/g, '/');
     let safeFilename = req.file.originalname;
     try {
       safeFilename = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
     } catch (e) {}
 
+    if (pgClient) {
+      try {
+        const fileContent = fs.readFileSync(req.file.path, { encoding: 'base64' });
+        await pgClient.query(
+          'INSERT INTO file_store (filepath, filename, content) VALUES ($1, $2, $3) ON CONFLICT (filepath) DO UPDATE SET filename = EXCLUDED.filename, content = EXCLUDED.content',
+          [relPath, safeFilename, fileContent]
+        );
+      } catch (err) {
+        console.error('Failed to save file to PG:', err);
+      }
+    }
+
     account.attachment = {
       filename: safeFilename,
-      path: relPath.replace(/\\/g, '/') // standard url-like slashes
+      path: relPath
     };
 
     accounts[idx] = account;
     config.accounts = accounts;
 
-    if (saveConfig(config)) {
+    if (await saveConfig(config)) {
       return res.json({ success: true, message: 'تم حفظ وربط الصورة/الملف المرفق بالحساب بنجاح!', attachment: account.attachment });
     }
   }
@@ -540,7 +649,7 @@ app.post('/api/config/upload-attachment', upload.single('attachment'), (req, res
 // 5. Test SMTP connection for custom account parameters
 app.post('/api/config/test-account', async (req, res) => {
   const { host, port, secure, user, pass, index } = req.body;
-  const config = loadConfig();
+  const config = await loadConfig();
   const accounts = config.accounts || [];
   
   let actualPass = pass;
@@ -584,7 +693,7 @@ app.post('/api/config/test-account', async (req, res) => {
 });
 
 // 6. Start active campaign
-app.post('/api/campaign/start', upload.array('attachments'), (req, res) => {
+app.post('/api/campaign/start', upload.array('attachments'), async (req, res) => {
   const { subject, htmlTemplate, delay } = req.body;
   let recipients = req.body.recipients;
 
@@ -596,7 +705,7 @@ app.post('/api/campaign/start', upload.array('attachments'), (req, res) => {
     }
   }
 
-  const config = loadConfig();
+  const config = await loadConfig();
   const activeAccounts = (config.accounts || []).filter(acc => acc.isActive);
 
   if (activeAccounts.length === 0) {

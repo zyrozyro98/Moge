@@ -2791,7 +2791,7 @@ p {
     color: #475569;
 }
 
-/* 9. Misc Enhancements */
+/* 9. Misc & Visual Enhancements */
 .student-info .student-name {
     color: #0f172a !important;
 }
@@ -2809,3 +2809,96 @@ p {
 .general-group-banner h3 {
     color: #0f172a !important;
 }
+
+/* Floating visual badges enhancement */
+.visual-badge {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 10px 25px rgba(30, 58, 138, 0.06) !important;
+    border-right: 4px solid var(--primary) !important;
+    backdrop-filter: none !important;
+}
+.visual-badge.float-badge-2 {
+    border-right: 4px solid var(--gold) !important;
+}
+.visual-badge i {
+    background: rgba(30, 58, 138, 0.05) !important;
+    color: var(--primary) !important;
+}
+.visual-badge h4 {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
+/* GPA summary premium look */
+.gpa-summary {
+    background: rgba(30, 58, 138, 0.03) !important;
+    border: 1px solid rgba(30, 58, 138, 0.08) !important;
+}
+.gpa-text {
+    color: #475569 !important;
+}
+.gpa-num {
+    color: #1e3a8a !important;
+}
+
+/* Progress bar redesign */
+.bar-outer {
+    background: #e2e8f0 !important;
+}
+.bar-inner {
+    background: linear-gradient(90deg, #2563eb 0%, #1e3a8a 100%) !important;
+}
+.chart-value {
+    color: #1e3a8a !important;
+}
+
+/* Academic title section bar */
+.section-bar {
+    background: linear-gradient(90deg, #d97706 0%, #1e3a8a 100%) !important;
+    height: 4px !important;
+    border-radius: 2px !important;
+    margin: 15px auto 25px !important;
+}
+
+/* Stats container light mode overhaul */
+.stats-container {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.02) !important;
+    backdrop-filter: none !important;
+    padding: 35px 20px !important;
+}
+.divider-v {
+    background: #e2e8f0 !important;
+}
+.stat-number {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+.stat-label {
+    color: #475569 !important;
+}
+
+/* Calculator selection chips */
+.uni-option {
+    border-radius: 30px !important;
+    border: 1px solid #e2e8f0 !important;
+    background: #ffffff !important;
+    color: #475569 !important;
+    transition: all 0.2s ease !important;
+    padding: 10px 24px !important;
+}
+.uni-option.active {
+    background: #1e3a8a !important;
+    color: #ffffff !important;
+    border-color: #1e3a8a !important;
+    box-shadow: 0 4px 10px rgba(30, 58, 138, 0.15) !important;
+}
+.uni-option:hover:not(.active) {
+    border-color: #cbd5e1 !important;
+    background: #f8fafc !important;
+}
+

@@ -3279,6 +3279,37 @@ p {
     background: linear-gradient(90deg, #d97706 0%, #1e3a8a 100%) !important;
 }
 
+/* Premium CTA Banner Light Overrides */
+.cta-banner-wrapper {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%) !important;
+    border: none !important;
+    box-shadow: 0 20px 40px rgba(30, 58, 138, 0.15) !important;
+    backdrop-filter: none !important;
+}
+.cta-banner-content h2 {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+}
+.cta-banner-content p {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+.btn-whatsapp-banner {
+    background: #ffffff !important;
+    color: #25d366 !important; /* Premium WhatsApp green text on white button */
+    border-radius: 50px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+    font-weight: 800 !important;
+    padding: 14px 35px !important;
+    transition: var(--transition-smooth) !important;
+}
+.btn-whatsapp-banner:hover {
+    background: #f8fafc !important;
+    color: #20ba5a !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+
 
 
 

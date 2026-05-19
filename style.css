@@ -2997,5 +2997,103 @@ p {
     transform: translateY(-2px) !important;
 }
 
+/* Premium targeted inputs design */
+.input-with-icon input, .input-with-icon select, .calc-input {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+    border-radius: var(--radius-md) !important;
+    padding: 14px 45px 14px 16px !important; /* Padding for RTL icon placement */
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    transition: var(--transition-smooth) !important;
+}
+.input-with-icon input:focus, .input-with-icon select:focus, .calc-input:focus {
+    background: #ffffff !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08) !important;
+    outline: none !important;
+}
+
+/* Steps section styling */
+.step-item {
+    display: flex !important;
+    gap: 20px !important;
+    margin-bottom: 25px !important;
+    position: relative !important;
+}
+.step-num {
+    background: rgba(30, 58, 138, 0.06) !important;
+    color: #1e3a8a !important;
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 800 !important;
+    font-size: 18px !important;
+    border: 1px solid rgba(30, 58, 138, 0.1) !important;
+    flex-shrink: 0 !important;
+}
+.step-item h4 {
+    color: #0f172a !important;
+    margin-bottom: 6px !important;
+    font-weight: 700 !important;
+    font-size: 16px !important;
+}
+.step-item p {
+    color: #475569 !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+}
+
+/* WhatsApp university groups visual layout */
+.group-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 30px 24px !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important;
+    text-align: center !important;
+    transition: var(--transition-smooth) !important;
+}
+.group-card:hover {
+    transform: translateY(-4px) !important;
+    border-color: #25d366 !important;
+    box-shadow: 0 12px 20px -5px rgba(37, 211, 102, 0.1) !important;
+}
+.group-card .group-icon-wrapper {
+    background: rgba(37, 211, 102, 0.05) !important;
+    color: #25d366 !important;
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto 20px !important;
+    font-size: 24px !important;
+}
+.btn-whatsapp-group {
+    background: rgba(37, 211, 102, 0.06) !important;
+    color: #20ba5a !important;
+    border: 1px solid rgba(37, 211, 102, 0.2) !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    padding: 10px 20px !important;
+    font-size: 14px !important;
+    border-radius: 50px !important;
+    font-weight: 700 !important;
+}
+.btn-whatsapp-group:hover {
+    background: #25d366 !important;
+    color: #ffffff !important;
+    border-color: #25d366 !important;
+    box-shadow: 0 6px 15px rgba(37, 211, 102, 0.25) !important;
+    transform: translateY(-2px) !important;
+}
+
+
 
 

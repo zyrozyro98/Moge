@@ -3465,6 +3465,64 @@ p {
     color: #2563eb !important;
 }
 
+/* Premium Mobile Navigation Sidebar Light-Mode Overrides */
+@media (max-width: 768px) {
+    .nav-menu {
+        position: fixed !important;
+        top: 0 !important;
+        right: -320px !important;
+        width: 300px !important;
+        height: 100vh !important;
+        background: rgba(255, 255, 255, 0.99) !important; /* Pure luxury white background */
+        z-index: 1000 !important; /* Under toggler icon (1001) */
+        transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        box-shadow: -10px 0 40px rgba(15, 23, 42, 0.08) !important;
+        padding: 100px 24px 40px !important;
+        overflow-y: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .nav-menu.active {
+        right: 0 !important;
+    }
+
+    .nav-menu ul {
+        flex-direction: column !important;
+        align-items: flex-start !important; /* RTL align right instead of center */
+        width: 100% !important;
+        gap: 12px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .nav-menu ul li {
+        width: 100% !important;
+    }
+
+    .nav-menu .nav-link {
+        font-size: 15.5px !important;
+        font-weight: 700 !important;
+        color: #334155 !important; /* Visible text color */
+        padding: 12px 16px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        border-radius: var(--radius-md) !important;
+        transition: var(--transition-smooth) !important;
+        border-bottom: 1px solid #f1f5f9 !important; /* Bottom divider line */
+        width: 100% !important;
+        text-align: right !important;
+    }
+
+    .nav-menu .nav-link:hover, .nav-menu .nav-link.active {
+        background: rgba(30, 58, 138, 0.04) !important;
+        color: #1e3a8a !important; /* Royal Navy color */
+        border-bottom-color: rgba(30, 58, 138, 0.1) !important;
+    }
+}
+
+
 
 
 

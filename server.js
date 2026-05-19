@@ -20,38 +20,18 @@ const CONFIG_FILE = path.join(__dirname, 'config.json');
 
 // Helper to load SMTP configuration
 function loadConfig() {
-  // 1. First, prioritize the local config.json file (user's saved settings in UI take absolute priority)
   if (fs.existsSync(CONFIG_FILE)) {
     try {
-      return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+      const data = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+      if (!data.accounts) {
+        data.accounts = [];
+      }
+      return data;
     } catch (err) {
       console.error('Error reading config file:', err);
     }
   }
-
-  // 2. If no config.json exists, fallback to Environment Variables (perfect for secure Render/Railway cloud deployment)
-  if (process.env.SMTP_HOST) {
-    return {
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT) || 587,
-      secure: process.env.SMTP_SECURE === 'true' || process.env.SMTP_PORT == 465,
-      user: process.env.SMTP_USER || '',
-      pass: process.env.SMTP_PASS || '',
-      fromName: process.env.SMTP_FROM_NAME || 'نظام الإرسال الجماعي',
-      fromEmail: process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || ''
-    };
-  }
-
-  // 3. Ultimate default fallback
-  return {
-    host: '',
-    port: 587,
-    secure: false, // true for 465, false for other ports
-    user: '',
-    pass: '',
-    fromName: 'نظام الإرسال الجماعي',
-    fromEmail: ''
-  };
+  return { accounts: [] };
 }
 
 // Helper to save SMTP configuration
@@ -77,7 +57,7 @@ let campaignState = {
   subject: '',
   htmlTemplate: '',
   delay: 2000,
-  logs: [], // Array of { email, recipientName, status, time, error }
+  logs: [], // Array of { email, recipientName, accountUser, status, time, error }
   index: 0
 };
 
@@ -108,7 +88,6 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 // Replace custom placeholders like {{name}}, {{email}}, or any other {{key}} dynamically
 function parseTemplate(template, recipient) {
   let content = template;
-  // Dynamic case-insensitive or exact replacement for all keys in recipient
   for (const [key, value] of Object.entries(recipient)) {
     const placeholder = new RegExp(`{{\\s*${key}\\s*}}`, 'gi');
     content = content.replace(placeholder, value || '');
@@ -129,64 +108,73 @@ function cleanUploadedFiles(files) {
   }
 }
 
-// Background Campaign Runner Loop
+// Global Campaign Runner Loop (Round-Robin among Active SMTP Accounts)
 async function runCampaign() {
   try {
+    const config = loadConfig();
+    const activeAccounts = (config.accounts || []).filter(acc => acc.isActive);
+    
+    if (activeAccounts.length === 0) {
+      campaignState.active = false;
+      campaignState.logs.push({
+        email: '-',
+        recipientName: 'النظام',
+        accountUser: 'النظام',
+        status: 'failed',
+        time: new Date().toLocaleTimeString('ar-EG'),
+        error: 'فشل البدء: لا توجد حسابات SMTP نشطة!'
+      });
+      broadcastStatus();
+      return;
+    }
+
     while (campaignState.active && campaignState.index < campaignState.total) {
       if (campaignState.paused) {
         await sleep(500);
         continue;
       }
 
-      // Check active state again right before starting processing to catch instant stops
       if (!campaignState.active) break;
 
       const recipient = campaignState.recipients[campaignState.index];
-      const config = loadConfig();
+      // Select account round-robin style
+      const account = activeAccounts[campaignState.index % activeAccounts.length];
 
-      if (!config.host || !config.user || !config.pass) {
-        campaignState.active = false;
-        campaignState.logs.push({
-          email: recipient.email || 'غير معروف',
-          recipientName: recipient.name || 'غير معروف',
-          status: 'failed',
-          time: new Date().toLocaleTimeString('ar-EG'),
-          error: 'فشل الإرسال: إعدادات SMTP غير مكتملة'
-        });
-        broadcastStatus();
-        break;
-      }
-
-      // Set up transporter
-      let actualPass = config.pass || '';
-      if (actualPass && config.host.toLowerCase().includes('gmail')) {
+      let actualPass = account.pass || '';
+      if (actualPass && account.host.toLowerCase().includes('gmail')) {
         actualPass = actualPass.replace(/\s/g, '');
       }
 
       const transporter = nodemailer.createTransport({
-        host: config.host,
-        port: parseInt(config.port),
-        secure: config.secure === true || config.port == 465,
+        host: account.host,
+        port: parseInt(account.port),
+        secure: account.secure === true || account.port == 465,
         auth: {
-          user: config.user,
+          user: account.user,
           pass: actualPass
         },
         tls: {
-          rejectUnauthorized: false // Bypass SSL errors for local or self-signed servers if needed
+          rejectUnauthorized: false
         }
       });
 
       const personalizedSubject = parseTemplate(campaignState.subject, recipient);
       const personalizedHtml = parseTemplate(campaignState.htmlTemplate, recipient);
 
-      const attachments = (campaignState.attachments || []).map(file => ({
-        filename: file.originalname,
-        path: file.path,
-        cid: file.originalname // Sets Content-ID same as original filename to support inline images <img src="cid:image.png">
-      }));
+      const attachments = (campaignState.attachments || []).map(file => {
+        let safeName = file.originalname;
+        try {
+          safeName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+        } catch (e) {}
+        return {
+          filename: safeName,
+          path: file.path,
+          cid: safeName
+        };
+      });
 
       const mailOptions = {
-        from: `"${config.fromName}" <${config.fromEmail || config.user}>`,
+        from: `"${account.fromName || 'نظام الإرسال'}" <${account.fromEmail || account.user}>`,
         to: recipient.email,
         subject: personalizedSubject,
         html: personalizedHtml,
@@ -196,25 +184,25 @@ async function runCampaign() {
       try {
         await transporter.sendMail(mailOptions);
         
-        // Success log
         campaignState.successCount++;
         campaignState.current++;
         campaignState.logs.push({
           email: recipient.email,
           recipientName: recipient.name || 'بدون اسم',
+          accountUser: account.user,
           status: 'success',
           time: new Date().toLocaleTimeString('ar-EG'),
           error: null
         });
       } catch (err) {
-        console.error(`Error sending email to ${recipient.email}:`, err.message);
+        console.error(`Error sending email to ${recipient.email} via ${account.user}:`, err.message);
         
-        // Failure log
         campaignState.failureCount++;
         campaignState.current++;
         campaignState.logs.push({
           email: recipient.email || 'غير معروف',
           recipientName: recipient.name || 'بدون اسم',
+          accountUser: account.user,
           status: 'failed',
           time: new Date().toLocaleTimeString('ar-EG'),
           error: err.message || 'فشل غير معروف'
@@ -224,83 +212,324 @@ async function runCampaign() {
       campaignState.index++;
       broadcastStatus();
 
-      // Delay if there are more emails to send and campaign is still active
       if (campaignState.active && campaignState.index < campaignState.total) {
         await sleep(campaignState.delay);
       }
     }
 
-    // Completed
     if (campaignState.index >= campaignState.total && campaignState.active) {
       campaignState.active = false;
       campaignState.logs.push({
         email: '-',
         recipientName: 'النظام',
+        accountUser: 'النظام',
         status: 'completed',
         time: new Date().toLocaleTimeString('ar-EG'),
-        error: 'اكتملت الحملة البريدية بنجاح!'
+        error: 'اكتملت الحملة البريدية العامة بنجاح!'
       });
       broadcastStatus();
     }
   } catch (loopError) {
     console.error('Error in campaign loop:', loopError);
   } finally {
-    // ALWAYS clean up attachments when exiting the campaign loop safely
     cleanUploadedFiles(campaignState.attachments);
+  }
+}
+
+// Account-Specific Campaign Runner Loop
+async function runAccountCampaign(account, globalDelay) {
+  let index = 0;
+  const recipients = account.recipients || [];
+  const total = recipients.length;
+
+  while (campaignState.active && index < total) {
+    if (campaignState.paused) {
+      await sleep(500);
+      continue;
+    }
+
+    if (!campaignState.active) break;
+
+    const recipient = recipients[index];
+
+    let actualPass = account.pass || '';
+    if (actualPass && account.host.toLowerCase().includes('gmail')) {
+      actualPass = actualPass.replace(/\s/g, '');
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: account.host,
+      port: parseInt(account.port),
+      secure: account.secure === true || account.port == 465,
+      auth: {
+        user: account.user,
+        pass: actualPass
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+
+    const personalizedSubject = parseTemplate(account.customSubject || 'بدون موضوع', recipient);
+    let personalizedHtml = parseTemplate(account.customHtml || '', recipient);
+
+    // Format plain text template to clean HTML with correct RTL styling
+    const isHtml = /<[a-z][\s\S]*>/i.test(personalizedHtml);
+    if (!isHtml) {
+      personalizedHtml = `<div style="font-family: sans-serif; font-size: 15px; direction: rtl; text-align: right; line-height: 1.6; color: #333333;">${personalizedHtml.replace(/\n/g, '<br>')}</div>`;
+    }
+
+    const attachments = [];
+    if (account.attachment && account.attachment.path) {
+      const attPath = path.join(__dirname, account.attachment.path);
+      if (fs.existsSync(attPath)) {
+        let safeName = account.attachment.filename;
+        try {
+          safeName = Buffer.from(account.attachment.filename, 'latin1').toString('utf8');
+        } catch (e) {}
+
+        attachments.push({
+          filename: safeName,
+          path: attPath,
+          cid: 'attachment_image'
+        });
+
+        // Auto-embed image at bottom if it's an image file and not already referenced via CID in template
+        const isImg = /\.(png|jpe?g|gif|webp|bmp)$/i.test(safeName);
+        if (isImg && !personalizedHtml.includes('cid:attachment_image')) {
+          personalizedHtml += `<br><br><div style="text-align: right; margin-top: 15px;"><img src="cid:attachment_image" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"></div>`;
+        }
+      }
+    }
+
+    const mailOptions = {
+      from: `"${account.fromName || 'نظام الإرسال'}" <${account.fromEmail || account.user}>`,
+      to: recipient.email,
+      subject: personalizedSubject,
+      html: personalizedHtml,
+      attachments: attachments
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      
+      campaignState.successCount++;
+      campaignState.current++;
+      campaignState.logs.push({
+        email: recipient.email,
+        recipientName: recipient.name || 'بدون اسم',
+        accountUser: account.user,
+        status: 'success',
+        time: new Date().toLocaleTimeString('ar-EG'),
+        error: null
+      });
+    } catch (err) {
+      console.error(`Error sending email from ${account.user} to ${recipient.email}:`, err.message);
+      
+      campaignState.failureCount++;
+      campaignState.current++;
+      campaignState.logs.push({
+        email: recipient.email || 'غير معروف',
+        recipientName: recipient.name || 'بدون اسم',
+        accountUser: account.user,
+        status: 'failed',
+        time: new Date().toLocaleTimeString('ar-EG'),
+        error: err.message || 'فشل غير معروف'
+      });
+    }
+
+    broadcastStatus();
+    index++;
+
+    if (campaignState.active && index < total) {
+      await sleep(globalDelay);
+    }
+  }
+}
+
+// Multi-Account Campaigns Aggregator
+async function runMultiCampaign(activeAccounts, globalDelay) {
+  try {
+    const promises = activeAccounts.map(account => runAccountCampaign(account, globalDelay));
+    await Promise.all(promises);
+
+    if (campaignState.active) {
+      campaignState.active = false;
+      campaignState.logs.push({
+        email: '-',
+        recipientName: 'النظام',
+        accountUser: 'النظام',
+        status: 'completed',
+        time: new Date().toLocaleTimeString('ar-EG'),
+        error: 'اكتملت الحملات البريدية لكافة الحسابات بنجاح!'
+      });
+      broadcastStatus();
+    }
+  } catch (error) {
+    console.error('Error in multi-campaign aggregator:', error);
   }
 }
 
 // --- API ROUTES ---
 
-// 1. Get current configuration
+// 1. Get configuration (multiple accounts support)
 app.get('/api/config', (req, res) => {
   const config = loadConfig();
-  // Don't send back the real password in plain text for security, or send it masked. 
-  // For a developer/local dashboard, sending it masked or as a placeholder is neat.
-  const maskedConfig = { ...config };
-  if (maskedConfig.pass) {
-    maskedConfig.pass = '••••••••••••••••';
-    maskedConfig.hasPassword = true;
-  } else {
-    maskedConfig.hasPassword = false;
-  }
-  res.json({ success: true, data: maskedConfig });
+  const maskedAccounts = (config.accounts || []).map(acc => {
+    const masked = { ...acc };
+    if (masked.pass) {
+      masked.pass = '••••••••••••••••';
+      masked.hasPassword = true;
+    } else {
+      masked.hasPassword = false;
+    }
+    return masked;
+  });
+  res.json({ success: true, data: { accounts: maskedAccounts } });
 });
 
-// 2. Save SMTP configuration
-app.post('/api/config', (req, res) => {
-  const { host, port, secure, user, pass, fromName, fromEmail } = req.body;
-  const currentConfig = loadConfig();
-  
-  let cleanPass = pass === '••••••••••••••••' ? currentConfig.pass : (pass || '');
-  if (cleanPass && cleanPass !== '••••••••••••••••' && host && host.toLowerCase().includes('gmail')) {
+// 2. Save SMTP Account (Add or Update)
+app.post('/api/config/save-account', (req, res) => {
+  const { index, host, port, secure, user, pass, fromName, fromEmail, customSubject, customHtml, recipients, isActive } = req.body;
+  const config = loadConfig();
+  const accounts = config.accounts || [];
+
+  const targetIdx = parseInt(index);
+  let existingAccount = null;
+  if (targetIdx >= 0 && targetIdx < accounts.length) {
+    existingAccount = accounts[targetIdx];
+  }
+
+  let cleanPass = pass;
+  if (pass === '••••••••••••••••' && existingAccount) {
+    cleanPass = existingAccount.pass;
+  } else if (cleanPass && host && host.toLowerCase().includes('gmail')) {
     cleanPass = cleanPass.replace(/\s/g, '');
   }
 
-  const newConfig = {
+  let parsedRecipients = recipients;
+  if (typeof recipients === 'string') {
+    try {
+      parsedRecipients = JSON.parse(recipients);
+    } catch(e) {
+      parsedRecipients = [];
+    }
+  }
+
+  const accountData = {
     host: host || '',
     port: parseInt(port) || 587,
     secure: secure === true || secure === 'true',
     user: user || '',
-    pass: cleanPass,
-    fromName: fromName || 'نظام الإرسال الجماعي',
-    fromEmail: fromEmail || user || ''
+    pass: cleanPass || '',
+    fromName: fromName || '',
+    fromEmail: fromEmail || user || '',
+    customSubject: customSubject || '',
+    customHtml: customHtml || '',
+    recipients: Array.isArray(parsedRecipients) ? parsedRecipients : [],
+    isActive: isActive === true || isActive === 'true',
+    attachment: existingAccount ? existingAccount.attachment : null
   };
 
-  if (saveConfig(newConfig)) {
-    res.json({ success: true, message: 'تم حفظ الإعدادات بنجاح!' });
+  if (targetIdx >= 0 && targetIdx < accounts.length) {
+    accounts[targetIdx] = accountData;
+  } else {
+    accounts.push(accountData);
+  }
+
+  config.accounts = accounts;
+  if (saveConfig(config)) {
+    res.json({ success: true, message: 'تم حفظ إعدادات الحساب بنجاح!' });
   } else {
     res.status(500).json({ success: false, message: 'فشل حفظ الإعدادات.' });
   }
 });
 
-// 3. Test SMTP connection
-app.post('/api/config/test', async (req, res) => {
-  const { host, port, secure, user, pass } = req.body;
-  const currentConfig = loadConfig();
+// 3. Delete SMTP Account
+app.post('/api/config/delete-account', (req, res) => {
+  const { index } = req.body;
+  const config = loadConfig();
+  const accounts = config.accounts || [];
+  const idx = parseInt(index);
+
+  if (idx >= 0 && idx < accounts.length) {
+    const account = accounts[idx];
+    if (account.attachment && account.attachment.path) {
+      const filePath = path.join(__dirname, account.attachment.path);
+      if (fs.existsSync(filePath)) {
+        fs.unlink(filePath, (err) => {
+          if (err) console.error('Error deleting attachment file:', err);
+        });
+      }
+    }
+    accounts.splice(idx, 1);
+    config.accounts = accounts;
+    if (saveConfig(config)) {
+      return res.json({ success: true, message: 'تم حذف الحساب بنجاح!' });
+    }
+  }
+  res.status(400).json({ success: false, message: 'رقم الحساب غير صالح للتنفيذ!' });
+});
+
+// 4. Upload Attachment for Specific Account
+app.post('/api/config/upload-attachment', upload.single('attachment'), (req, res) => {
+  const { index } = req.body;
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: 'لم يتم إرفاق أي ملف للرفع!' });
+  }
+
+  const config = loadConfig();
+  const accounts = config.accounts || [];
+  const idx = parseInt(index);
+
+  if (idx >= 0 && idx < accounts.length) {
+    const account = accounts[idx];
+    if (account.attachment && account.attachment.path) {
+      const oldPath = path.join(__dirname, account.attachment.path);
+      if (fs.existsSync(oldPath)) {
+        fs.unlink(oldPath, (err) => {
+          if (err) console.error('Error deleting old attachment file:', err);
+        });
+      }
+    }
+
+    const relPath = path.relative(__dirname, req.file.path);
+    let safeFilename = req.file.originalname;
+    try {
+      safeFilename = Buffer.from(req.file.originalname, 'latin1').toString('utf8');
+    } catch (e) {}
+
+    account.attachment = {
+      filename: safeFilename,
+      path: relPath.replace(/\\/g, '/') // standard url-like slashes
+    };
+
+    accounts[idx] = account;
+    config.accounts = accounts;
+
+    if (saveConfig(config)) {
+      return res.json({ success: true, message: 'تم حفظ وربط الصورة/الملف المرفق بالحساب بنجاح!', attachment: account.attachment });
+    }
+  }
+
+  if (req.file && fs.existsSync(req.file.path)) {
+    fs.unlinkSync(req.file.path);
+  }
+  res.status(400).json({ success: false, message: 'فشل حفظ الملف المرفق.' });
+});
+
+// 5. Test SMTP connection for custom account parameters
+app.post('/api/config/test-account', async (req, res) => {
+  const { host, port, secure, user, pass, index } = req.body;
+  const config = loadConfig();
+  const accounts = config.accounts || [];
   
-  // Handle password mask
-  let actualPass = pass === '••••••••••••••••' ? currentConfig.pass : pass;
+  let actualPass = pass;
+  const idx = parseInt(index);
+  if (pass === '••••••••••••••••' && idx >= 0 && idx < accounts.length) {
+    actualPass = accounts[idx].pass;
+  }
+
   if (actualPass && host && host.toLowerCase().includes('gmail')) {
     actualPass = actualPass.replace(/\s/g, '');
   }
@@ -320,7 +549,7 @@ app.post('/api/config/test', async (req, res) => {
     tls: {
       rejectUnauthorized: false
     },
-    timeout: 8000 // 8 seconds timeout
+    timeout: 8000
   });
 
   try {
@@ -330,12 +559,12 @@ app.post('/api/config/test', async (req, res) => {
     console.error('SMTP verification error:', err);
     res.json({ 
       success: false, 
-      message: `فشل الاتصال: ${err.message || 'تأكد من صحة البيانات أو تفعيل خيار التطبيقات الأقل أماناً / كلمة مرور التطبيق (App Password)'}` 
+      message: `فشل الاتصال: ${err.message || 'تأكد من صحة البيانات وتفعيل خيارات الأمان المناسبة.'}` 
     });
   }
 });
 
-// 4. Start active campaign
+// 6. Start active campaign
 app.post('/api/campaign/start', upload.array('attachments'), (req, res) => {
   const { subject, htmlTemplate, delay } = req.body;
   let recipients = req.body.recipients;
@@ -348,58 +577,91 @@ app.post('/api/campaign/start', upload.array('attachments'), (req, res) => {
     }
   }
 
-  if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
-    return res.status(400).json({ success: false, message: 'قائمة المستلمين فارغة أو غير صالحة!' });
-  }
-  if (!subject) {
-    return res.status(400).json({ success: false, message: 'عنوان الرسالة مطلوب!' });
-  }
-  if (!htmlTemplate) {
-    return res.status(400).json({ success: false, message: 'محتوى الرسالة مطلوب!' });
+  const config = loadConfig();
+  const activeAccounts = (config.accounts || []).filter(acc => acc.isActive);
+
+  if (activeAccounts.length === 0) {
+    return res.status(400).json({ success: false, message: 'برجاء تفعيل وحفظ حساب SMTP نشط واحد على الأقل قبل بدء الحملة!' });
   }
 
-  // Validate SMTP config exists first
-  const config = loadConfig();
-  if (!config.host || !config.user || !config.pass) {
-    return res.status(400).json({ success: false, message: 'برجاء ضبط وحفظ إعدادات الـ SMTP أولاً قبل بدء الحملة!' });
-  }
+  const isGlobalCampaign = recipients && Array.isArray(recipients) && recipients.length > 0;
 
   if (campaignState.active) {
-    // If a campaign is already active, we should delete newly uploaded files immediately!
     cleanUploadedFiles(req.files);
     return res.status(400).json({ success: false, message: 'هناك حملة بريدية نشطة بالفعل قيد الإرسال!' });
   }
 
-  // Initialize campaign state
-  campaignState = {
-    active: true,
-    paused: false,
-    total: recipients.length,
-    current: 0,
-    successCount: 0,
-    failureCount: 0,
-    recipients: recipients,
-    subject: subject,
-    htmlTemplate: htmlTemplate,
-    delay: parseInt(delay) || 2000,
-    attachments: req.files || [],
-    logs: [{
-      email: '-',
-      recipientName: 'النظام',
-      status: 'info',
-      time: new Date().toLocaleTimeString('ar-EG'),
-      error: `بدء حملة بريدية جديدة لعدد ${recipients.length} مستلم.`
-    }],
-    index: 0
-  };
+  if (isGlobalCampaign) {
+    if (!subject) {
+      return res.status(400).json({ success: false, message: 'عنوان الرسالة مطلوب للحملة العامة!' });
+    }
+    if (!htmlTemplate) {
+      return res.status(400).json({ success: false, message: 'محتوى الرسالة مطلوب للحملة العامة!' });
+    }
 
-  // Run campaign asynchronously in background
-  runCampaign();
+    // Initialize campaign state
+    campaignState = {
+      active: true,
+      paused: false,
+      total: recipients.length,
+      current: 0,
+      successCount: 0,
+      failureCount: 0,
+      recipients: recipients,
+      subject: subject,
+      htmlTemplate: htmlTemplate,
+      delay: parseInt(delay) || 2000,
+      attachments: req.files || [],
+      logs: [{
+        email: '-',
+        recipientName: 'النظام',
+        accountUser: 'النظام',
+        status: 'info',
+        time: new Date().toLocaleTimeString('ar-EG'),
+        error: `بدء حملة بريدية عامة جديدة لعدد ${recipients.length} مستلم عبر ${activeAccounts.length} حسابات نشطة بالتناوب.`
+      }],
+      index: 0
+    };
 
-  res.json({ success: true, message: 'تم إطلاق الحملة البريدية في الخلفية بنجاح!' });
+    runCampaign();
+    res.json({ success: true, message: 'تم إطلاق الحملة البريدية العامة في الخلفية بنجاح!' });
+  } else {
+    // Multi-account campaign with account-specific recipients lists
+    const totalRecipients = activeAccounts.reduce((sum, acc) => sum + (acc.recipients ? acc.recipients.length : 0), 0);
+
+    if (totalRecipients === 0) {
+      return res.status(400).json({ success: false, message: 'قوائم المستلمين فارغة! يرجى تحميل ملف CSV أو لصق جهات اتصال لكل حساب نشط تريد استخدامه.' });
+    }
+
+    campaignState = {
+      active: true,
+      paused: false,
+      total: totalRecipients,
+      current: 0,
+      successCount: 0,
+      failureCount: 0,
+      recipients: [],
+      subject: 'متعدد (حسابات مخصصة)',
+      htmlTemplate: 'متعدد (حسابات مخصصة)',
+      delay: parseInt(delay) || 2000,
+      attachments: [],
+      logs: [{
+        email: '-',
+        recipientName: 'النظام',
+        accountUser: 'النظام',
+        status: 'info',
+        time: new Date().toLocaleTimeString('ar-EG'),
+        error: `بدء حملة بريدية مخصصة لكل حساب نشط. إجمالي المستلمين: ${totalRecipients} عبر ${activeAccounts.length} حسابات نشطة بالتوازي.`
+      }],
+      index: 0
+    };
+
+    runMultiCampaign(activeAccounts, parseInt(delay) || 2000);
+    res.json({ success: true, message: 'تم إطلاق الحملات البريدية المخصصة للحسابات في الخلفية بنجاح!' });
+  }
 });
 
-// 5. Pause campaign
+// 7. Pause campaign
 app.post('/api/campaign/pause', (req, res) => {
   if (!campaignState.active) {
     return res.status(400).json({ success: false, message: 'لا توجد حملة بريدية نشطة لتعليقها!' });
@@ -408,15 +670,16 @@ app.post('/api/campaign/pause', (req, res) => {
   campaignState.logs.push({
     email: '-',
     recipientName: 'النظام',
+    accountUser: 'النظام',
     status: 'info',
     time: new Date().toLocaleTimeString('ar-EG'),
-    error: 'تم تعليق الإرسال مؤقتاً.'
+    error: 'تم تعليق الإرسال مؤقتاً لكافة الحملات.'
   });
   broadcastStatus();
   res.json({ success: true, message: 'تم تعليق الإرسال مؤقتاً.' });
 });
 
-// 6. Resume campaign
+// 8. Resume campaign
 app.post('/api/campaign/resume', (req, res) => {
   if (!campaignState.active || !campaignState.paused) {
     return res.status(400).json({ success: false, message: 'لا توجد حملة معلقة لاستئنافها!' });
@@ -425,15 +688,16 @@ app.post('/api/campaign/resume', (req, res) => {
   campaignState.logs.push({
     email: '-',
     recipientName: 'النظام',
+    accountUser: 'النظام',
     status: 'info',
     time: new Date().toLocaleTimeString('ar-EG'),
-    error: 'تم استئناف الإرسال.'
+    error: 'تم استئناف الإرسال لكافة الحسابات.'
   });
   broadcastStatus();
   res.json({ success: true, message: 'تم استئناف الإرسال بنجاح!' });
 });
 
-// 7. Stop campaign
+// 9. Stop campaign
 app.post('/api/campaign/stop', (req, res) => {
   if (!campaignState.active) {
     return res.status(400).json({ success: false, message: 'لا توجد حملة نشطة لإيقافها!' });
@@ -443,15 +707,16 @@ app.post('/api/campaign/stop', (req, res) => {
   campaignState.logs.push({
     email: '-',
     recipientName: 'النظام',
+    accountUser: 'النظام',
     status: 'info',
     time: new Date().toLocaleTimeString('ar-EG'),
-    error: 'تم إلغاء وإيقاف الحملة البريدية من قبل المستخدم.'
+    error: 'تم إلغاء وإيقاف جميع الحملات البريدية النشطة من قبل المستخدم.'
   });
   broadcastStatus();
   res.json({ success: true, message: 'تم إيقاف وإلغاء الحملة البريدية بنجاح!' });
 });
 
-// 8. SSE Endpoint for status stream
+// 10. SSE Endpoint for status stream
 app.get('/api/campaign/status', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -489,3 +754,4 @@ app.listen(PORT, () => {
   console.log(`🌍 URL: http://localhost:${PORT}`);
   console.log(`====================================================`);
 });
+

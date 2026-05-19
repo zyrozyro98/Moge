@@ -58,80 +58,169 @@
 
       <!-- Tab Content 1: SMTP Settings -->
       <div id="smtp-tab" class="tab-content active">
-        <div class="glass-card">
-          <div class="card-header">
-            <h3><i class="fa-solid fa-gears card-icon"></i>إعدادات خادم البريد (SMTP)</h3>
-            <p>قم بضبط وتجربة إعدادات خادم الإرسال لتأمين حملتك البريدية.</p>
+        <div class="smtp-dual-layout">
+          <!-- Right Column: Accounts List Sidebar -->
+          <div class="accounts-sidebar-wrapper">
+            <div class="glass-card sidebar-card">
+              <div class="sidebar-header">
+                <h3><i class="fa-solid fa-server card-icon"></i>حسابات الـ SMTP</h3>
+                <p>أضف وأدر حسابات الإرسال وحملاتها المخصصة.</p>
+                <button type="button" id="btnAddAccount" class="btn btn-accent mt-3 btn-full">
+                  <i class="fa-solid fa-plus-circle"></i> <span>إضافة حساب جديد</span>
+                </button>
+              </div>
+              <div class="accounts-list-container" id="accountsListContainer">
+                <!-- Loaded Dynamically -->
+              </div>
+            </div>
           </div>
-          <form id="smtpForm" class="grid-form" autocomplete="off">
-            <div class="form-group span-2">
-              <label for="smtpHost">مضيف SMTP (Host)</label>
-              <div class="input-wrapper">
-                <i class="fa-solid fa-network-wired"></i>
-                <input type="text" id="smtpHost" placeholder="مثال: smtp.gmail.com" required autocomplete="off">
+          
+          <!-- Left Column: Selected Account Editor -->
+          <div class="account-editor-wrapper">
+            <div class="glass-card account-editor-card empty-state" id="accountEditorCard">
+              <!-- Placeholder Empty State -->
+              <div class="editor-placeholder" id="editorPlaceholder">
+                <i class="fa-solid fa-arrow-pointer-separator select-icon animate-pulse"></i>
+                <h4>الرجاء اختيار حساب للبدء</h4>
+                <p>اختر أحد الحسابات البريدية من القائمة الجانبية لتعديل بياناته البريدية، أو اضغط على إضافة حساب جديد لتهيئة قناة إرسال جديدة.</p>
+              </div>
+
+              <!-- Main Form Editor -->
+              <div class="editor-content hide" id="editorContent">
+                <div class="editor-content-header">
+                  <h3 id="editorTitle"><i class="fa-solid fa-user-gear card-icon glow-cyan"></i>إدارة وتعديل بيانات الحساب</h3>
+                  <p>تحكم بإعدادات خادم SMTP، صياغة الإيميل، قائمة مستلميه، والملف المرفق الخاص به.</p>
+                </div>
+                
+                <form id="smtpAccountForm" autocomplete="off">
+                  <input type="hidden" id="accountIndex" value="-1">
+                  
+                  <!-- Section 1: SMTP Credentials -->
+                  <div class="editor-section-title"><i class="fa-solid fa-network-wired"></i> 1. إعدادات خادم الإرسال (SMTP)</div>
+                  <div class="grid-form">
+                    <div class="form-group span-2">
+                      <label for="smtpHost">مضيف SMTP (Host)</label>
+                      <div class="input-wrapper">
+                        <i class="fa-solid fa-server"></i>
+                        <input type="text" id="smtpHost" placeholder="مثال: smtp.gmail.com" required autocomplete="off">
+                      </div>
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="smtpPort">المنفذ (Port)</label>
+                      <div class="input-wrapper">
+                        <i class="fa-solid fa-door-open"></i>
+                        <input type="number" id="smtpPort" placeholder="587" value="587" required autocomplete="off">
+                      </div>
+                    </div>
+
+                    <div class="form-group toggle-group">
+                      <label>الأمان (SSL/TLS)</label>
+                      <label class="switch">
+                        <input type="checkbox" id="smtpSecure">
+                        <span class="slider round"></span>
+                      </label>
+                    </div>
+
+                    <div class="form-group span-2">
+                      <label for="smtpUser">اسم المستخدم / البريد الإلكتروني</label>
+                      <div class="input-wrapper">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="smtpUser" placeholder="your-email@domain.com" required autocomplete="off">
+                      </div>
+                    </div>
+
+                    <div class="form-group span-2">
+                      <label for="smtpPass">كلمة المرور (أو رمز التطبيق App Password)</label>
+                      <div class="input-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="smtpPass" placeholder="••••••••••••••••" required autocomplete="new-password">
+                      </div>
+                      <small class="form-hint">لبريد Gmail، يجب استخدام "كلمة مرور التطبيق" المتكونة من 16 حرفاً.</small>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="fromName">اسم المرسل الظاهري</label>
+                      <div class="input-wrapper">
+                        <i class="fa-solid fa-user-tag"></i>
+                        <input type="text" id="fromName" placeholder="مثال: تحضير المحاضرات">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="fromEmail">بريد المرسل البديل (اختياري)</label>
+                      <div class="input-wrapper">
+                        <i class="fa-solid fa-reply"></i>
+                        <input type="email" id="fromEmail" placeholder="اتركه فارغاً لاستخدام بريد الحساب">
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Section 2: Account Template -->
+                  <div class="editor-section-title mt-4"><i class="fa-solid fa-envelope-open-text"></i> 2. رسالة وموضوع البريد المخصصين</div>
+                  <div class="form-group mb-3">
+                    <label for="customSubject">موضوع البريد الإلكتروني للحساب</label>
+                    <div class="input-wrapper">
+                      <i class="fa-solid fa-signature"></i>
+                      <input type="text" id="customSubject" placeholder="مثال: إثبات حضورك لمحاضرة يوم الأحد لـ {{name}}">
+                    </div>
+                  </div>
+                  
+                  <div class="form-group mb-3">
+                    <label for="customHtml">محتوى البريد الإلكتروني (يدعم أكواد HTML كاملة)</label>
+                    <div class="editor-wrapper">
+                      <textarea id="customHtml" rows="6" placeholder="اكتب نص الرسالة هنا، يمكنك استخدام {{name}} و {{email}} للتخصيص."></textarea>
+                    </div>
+                  </div>
+
+                  <!-- Section 3: Account-Specific Recipients List -->
+                  <div class="editor-section-title mt-4"><i class="fa-solid fa-users"></i> 3. قائمة مستلمي هذا الحساب</div>
+                  <div class="form-group mb-3">
+                    <div class="label-with-flex-action">
+                      <label for="accountRecipients">أدخل البريد الإلكتروني والاسم (كل سطر مستلم جديد)</label>
+                      <div class="csv-upload-btn-wrapper">
+                        <input type="file" id="accountCsvInput" accept=".csv,.txt" style="display: none;">
+                        <button type="button" class="btn btn-secondary btn-xs" onclick="document.getElementById('accountCsvInput').click()">
+                          <i class="fa-solid fa-file-csv"></i> استيراد CSV لهذا الحساب
+                        </button>
+                      </div>
+                    </div>
+                    <div class="manual-input-container">
+                      <textarea id="accountRecipients" rows="5" placeholder="sara@example.com, سارة&#10;ahmad@example.com, أحمد"></textarea>
+                    </div>
+                    <div class="parsed-status-bar mt-2">
+                      <span id="accountRecipientsCountBadge" class="badge-accent-cyan"><i class="fa-solid fa-check-circle"></i> 0 مستلم معرّف</span>
+                    </div>
+                  </div>
+
+                  <!-- Section 4: Account-Specific Attachment/Image -->
+                  <div class="editor-section-title mt-4"><i class="fa-solid fa-paperclip"></i> 4. صورة إثبات الحضور / المرفق الخاص بالحساب</div>
+                  <div class="form-group mb-3">
+                    <div class="account-upload-box" id="accountAttachmentDropZone">
+                      <input type="file" id="accountAttachmentInput" style="display: none;">
+                      <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                      <span id="accountAttachmentStatusText">اسحب وأسقط صورة الإثبات هنا، أو انقر للتصفح</span>
+                    </div>
+                    <div class="uploaded-files-list hide" id="accountAttachmentPreview">
+                      <!-- Retained attachment details -->
+                    </div>
+                  </div>
+
+                  <!-- Form Actions Bar -->
+                  <div class="editor-actions-bar mt-4">
+                    <button type="button" id="btnTestAccountSmtp" class="btn btn-secondary">
+                      <i class="fa-solid fa-vial"></i>
+                      <span>فحص اتصال SMTP</span>
+                    </button>
+                    <button type="submit" id="btnSaveAccount" class="btn btn-primary">
+                      <i class="fa-solid fa-floppy-disk"></i>
+                      <span>حفظ كافة التغييرات للحساب</span>
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
-            
-            <div class="form-group">
-              <label for="smtpPort">المنفذ (Port)</label>
-              <div class="input-wrapper">
-                <i class="fa-solid fa-door-open"></i>
-                <input type="number" id="smtpPort" placeholder="587" value="587" required autocomplete="off">
-              </div>
-            </div>
-
-            <div class="form-group toggle-group">
-              <label>الأمان (SSL/TLS)</label>
-              <label class="switch">
-                <input type="checkbox" id="smtpSecure">
-                <span class="slider round"></span>
-              </label>
-            </div>
-
-            <div class="form-group span-2">
-              <label for="smtpUser">اسم المستخدم / البريد الإلكتروني</label>
-              <div class="input-wrapper">
-                <i class="fa-solid fa-envelope"></i>
-                <input type="email" id="smtpUser" placeholder="your-email@domain.com" required autocomplete="off">
-              </div>
-            </div>
-
-            <div class="form-group span-2">
-              <label for="smtpPass">كلمة المرور (أو كلمة مرور التطبيق)</label>
-              <div class="input-wrapper">
-                <i class="fa-solid fa-lock"></i>
-                <input type="password" id="smtpPass" placeholder="••••••••••••••••" required autocomplete="new-password">
-              </div>
-              <small class="form-hint">لبريد Gmail، يرجى استخدام "كلمة مرور التطبيق" (App Password) وليس كلمة مرور حسابك العادية.</small>
-            </div>
-
-            <div class="form-group">
-              <label for="fromName">اسم المرسل الظاهري</label>
-              <div class="input-wrapper">
-                <i class="fa-solid fa-user-tag"></i>
-                <input type="text" id="fromName" placeholder="أنتيجرافيتي">
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="fromEmail">بريد المرسل البديل (اختياري)</label>
-              <div class="input-wrapper">
-                <i class="fa-solid fa-reply"></i>
-                <input type="email" id="fromEmail" placeholder="leave blank to use user email">
-              </div>
-            </div>
-
-            <div class="form-actions span-2">
-              <button type="button" id="btnTestSmtp" class="btn btn-secondary">
-                <i class="fa-solid fa-vial"></i>
-                <span>فحص الاتصال</span>
-              </button>
-              <button type="submit" id="btnSaveSmtp" class="btn btn-primary">
-                <i class="fa-solid fa-floppy-disk"></i>
-                <span>حفظ التكوين</span>
-              </button>
-            </div>
-          </form>
+          </div>
         </div>
       </div>
 

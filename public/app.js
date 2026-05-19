@@ -6,6 +6,9 @@ let sseSource = null;
 let activePreviewIndex = 0;
 let selectedAttachments = []; // List of selected files to attach
 
+let accountsList = [];
+let selectedAccountIndex = -1;
+
 // On Page Load
 document.addEventListener('DOMContentLoaded', () => {
   // Fetch Saved SMTP Config
@@ -70,105 +73,497 @@ function showToast(title, message, type = 'info') {
   }, 5000);
 }
 
-// 1. SMTP API Communications
+// 1. SMTP API Communications & Accounts Manager
 async function fetchSmtpConfig() {
   try {
     const res = await fetch('/api/config');
     const result = await res.json();
-    if (result.success && result.data) {
-      const config = result.data;
-      document.getElementById('smtpHost').value = config.host || '';
-      document.getElementById('smtpPort').value = config.port || 587;
-      document.getElementById('smtpSecure').checked = config.secure || false;
-      document.getElementById('smtpUser').value = config.user || '';
-      document.getElementById('smtpPass').value = config.hasPassword ? '••••••••••••••••' : '';
-      document.getElementById('fromName').value = config.fromName || 'نظام الإرسال الجماعي';
-      document.getElementById('fromEmail').value = config.fromEmail || '';
+    if (result.success && result.data && result.data.accounts) {
+      accountsList = result.data.accounts;
+      renderAccountsList();
+      updateEditorState();
     }
   } catch (err) {
-    showToast('خطأ بالنظام', 'تعذر جلب إعدادات SMTP من الخادم.', 'error');
+    showToast('خطأ بالنظام', 'تعذر جلب الحسابات من الخادم.', 'error');
+  }
+}
+
+function renderAccountsList() {
+  const container = document.getElementById('accountsListContainer');
+  container.innerHTML = '';
+  
+  if (accountsList.length === 0) {
+    container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 2rem 0;">لا توجد حسابات مضافة حالياً.</div>`;
+    return;
+  }
+
+  accountsList.forEach((acc, idx) => {
+    const isActiveAcc = acc.isActive ? 'is-active-acc' : '';
+    const isSelected = selectedAccountIndex === idx ? 'active' : '';
+    
+    const card = document.createElement('div');
+    card.className = `account-item-card ${isActiveAcc} ${isSelected}`;
+    card.dataset.index = idx;
+    
+    const recipientsCount = acc.recipients ? acc.recipients.length : 0;
+    const attachmentStatus = acc.attachment ? `<i class="fa-solid fa-paperclip" title="${acc.attachment.filename}"></i>` : '';
+
+    card.innerHTML = `
+      <div class="account-card-top">
+        <span class="account-card-email" title="${acc.user}">${acc.user || 'حساب جديد'}</span>
+        <div class="account-card-status-toggle">
+          <span class="status-indicator-dot"></span>
+          <label class="switch switch-xs" onclick="event.stopPropagation();">
+            <input type="checkbox" class="acc-toggle-checkbox" data-index="${idx}" ${acc.isActive ? 'checked' : ''}>
+            <span class="slider round"></span>
+          </label>
+        </div>
+      </div>
+      <div class="account-card-sender">${acc.fromName || 'لم يتم تعيين اسم المرسل'}</div>
+      <div class="account-card-meta">
+        <span class="account-card-badge">${recipientsCount} مستلم</span>
+        <div class="account-card-actions">
+          ${attachmentStatus}
+          <button class="btn-card-action delete" data-index="${idx}" onclick="event.stopPropagation(); deleteAccount(${idx})" title="حذف الحساب">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `;
+
+    card.addEventListener('click', () => {
+      selectedAccountIndex = idx;
+      renderAccountsList();
+      loadAccountIntoEditor(idx);
+    });
+
+    container.appendChild(card);
+  });
+
+  // Toggle activation checkbox
+  container.querySelectorAll('.acc-toggle-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', async (e) => {
+      const idx = parseInt(e.target.dataset.index);
+      const active = e.target.checked;
+      accountsList[idx].isActive = active;
+      
+      try {
+        const acc = accountsList[idx];
+        const payload = {
+          index: idx,
+          ...acc,
+          recipients: JSON.stringify(acc.recipients || [])
+        };
+        const res = await fetch('/api/config/save-account', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (result.success) {
+          showToast('تم التحديث', `تم ${active ? 'تفعيل' : 'تعطيل'} الحساب بنجاح!`, 'success');
+          renderAccountsList();
+        } else {
+          showToast('خطأ', result.message, 'error');
+        }
+      } catch(err) {
+        showToast('خطأ في الاتصال', 'تعذر تعديل حالة تنشيط الحساب.', 'error');
+      }
+    });
+  });
+}
+
+function updateEditorState() {
+  const editorCard = document.getElementById('accountEditorCard');
+  const placeholder = document.getElementById('editorPlaceholder');
+  const content = document.getElementById('editorContent');
+
+  if (selectedAccountIndex === -1) {
+    editorCard.classList.add('empty-state');
+    placeholder.classList.remove('hide');
+    content.classList.add('hide');
+  } else {
+    editorCard.classList.remove('empty-state');
+    placeholder.classList.add('hide');
+    content.classList.remove('hide');
+  }
+}
+
+function loadAccountIntoEditor(idx) {
+  const acc = accountsList[idx];
+  if (!acc) return;
+
+  document.getElementById('accountIndex').value = idx;
+  document.getElementById('smtpHost').value = acc.host || '';
+  document.getElementById('smtpPort').value = acc.port || 587;
+  document.getElementById('smtpSecure').checked = acc.secure || false;
+  document.getElementById('smtpUser').value = acc.user || '';
+  document.getElementById('smtpPass').value = acc.hasPassword ? '••••••••••••••••' : '';
+  document.getElementById('fromName').value = acc.fromName || '';
+  document.getElementById('fromEmail').value = acc.fromEmail || '';
+  
+  document.getElementById('customSubject').value = acc.customSubject || '';
+  document.getElementById('customHtml').value = acc.customHtml || '';
+  
+  // Recipients textarea
+  const reps = acc.recipients || [];
+  const repsText = reps.map(r => `${r.email}, ${r.name}`).join('\n');
+  document.getElementById('accountRecipients').value = repsText;
+  document.getElementById('accountRecipientsCountBadge').innerHTML = `<i class="fa-solid fa-check-circle"></i> ${reps.length} مستلم معرّف`;
+
+  // Render Attachment Preview
+  renderAccountAttachmentPreview(acc.attachment);
+  
+  updateEditorState();
+}
+
+function addNewAccount() {
+  const newAcc = {
+    host: '',
+    port: 587,
+    secure: false,
+    user: '',
+    pass: '',
+    fromName: '',
+    fromEmail: '',
+    customSubject: '',
+    customHtml: '',
+    recipients: [],
+    isActive: true,
+    attachment: null
+  };
+  
+  accountsList.push(newAcc);
+  selectedAccountIndex = accountsList.length - 1;
+  renderAccountsList();
+  loadAccountIntoEditor(selectedAccountIndex);
+  
+  document.getElementById('smtpHost').focus();
+  showToast('حساب جديد', 'تم إنشاء حساب جديد. يرجى تهيئة خادم الإرسال وحفظه.', 'info');
+}
+
+async function deleteAccount(idx) {
+  if (!confirm('هل أنت متأكد من رغبتك في حذف هذا الحساب تماماً؟')) return;
+  
+  try {
+    const res = await fetch('/api/config/delete-account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ index: idx })
+    });
+    const result = await res.json();
+    if (result.success) {
+      showToast('تم الحذف', result.message, 'warning');
+      if (selectedAccountIndex === idx) {
+        selectedAccountIndex = -1;
+      } else if (selectedAccountIndex > idx) {
+        selectedAccountIndex--;
+      }
+      fetchSmtpConfig();
+    } else {
+      showToast('خطأ في الحذف', result.message, 'error');
+    }
+  } catch (err) {
+    showToast('خطأ في الاتصال', 'فشل الاتصال بالخادم لحذف الحساب.', 'error');
+  }
+}
+
+async function testAccountSmtp() {
+  const idx = parseInt(document.getElementById('accountIndex').value);
+  const host = document.getElementById('smtpHost').value;
+  const port = document.getElementById('smtpPort').value;
+  const secure = document.getElementById('smtpSecure').checked;
+  const user = document.getElementById('smtpUser').value;
+  const pass = document.getElementById('smtpPass').value;
+
+  if (!host || !user || !pass) {
+    showToast('حقول مطلوبة', 'يرجى ملء المضيف، اسم المستخدم وكلمة المرور لتجربة الاتصال.', 'warning');
+    return;
+  }
+
+  const btn = document.getElementById('btnTestAccountSmtp');
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> جاري فحص الاتصال...';
+
+  try {
+    const res = await fetch('/api/config/test-account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ host, port, secure, user, pass, index: idx })
+    });
+    const result = await res.json();
+    if (result.success) {
+      showToast('نجاح الاتصال', result.message, 'success');
+    } else {
+      showToast('فشل الاتصال', result.message, 'error');
+    }
+  } catch (err) {
+    showToast('خطأ بالخادم', 'تعذر فحص الاتصال بالخادم.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+  }
+}
+
+async function saveAccountDetails(e) {
+  e.preventDefault();
+  const idx = parseInt(document.getElementById('accountIndex').value);
+  if (idx === -1) return;
+
+  const host = document.getElementById('smtpHost').value;
+  const port = document.getElementById('smtpPort').value;
+  const secure = document.getElementById('smtpSecure').checked;
+  const user = document.getElementById('smtpUser').value;
+  const pass = document.getElementById('smtpPass').value;
+  const fromName = document.getElementById('fromName').value;
+  const fromEmail = document.getElementById('fromEmail').value;
+  
+  const customSubject = document.getElementById('customSubject').value;
+  const customHtml = document.getElementById('customHtml').value;
+  
+  // Parse Recipients List
+  const rawReps = document.getElementById('accountRecipients').value;
+  const parsedReps = [];
+  rawReps.split('\n').forEach(line => {
+    const parts = line.split(/[;,\t]/).map(p => p.trim());
+    if (parts.length >= 1 && parts[0] !== '') {
+      const email = parts[0];
+      const name = parts[1] || email.split('@')[0];
+      if (email.includes('@')) {
+        parsedReps.push({ email, name });
+      }
+    }
+  });
+
+  const btn = document.getElementById('btnSaveAccount');
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري حفظ الحساب...';
+
+  try {
+    const payload = {
+      index: idx,
+      host,
+      port,
+      secure,
+      user,
+      pass,
+      fromName,
+      fromEmail,
+      customSubject,
+      customHtml,
+      recipients: JSON.stringify(parsedReps),
+      isActive: accountsList[idx].isActive
+    };
+
+    const res = await fetch('/api/config/save-account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+    if (result.success) {
+      showToast('تم الحفظ', 'تم حفظ إعدادات وتفاصيل الحساب بنجاح!', 'success');
+      fetchSmtpConfig();
+    } else {
+      showToast('خطأ في الحفظ', result.message, 'error');
+    }
+  } catch (err) {
+    showToast('خطأ في الاتصال', 'فشل الاتصال بالخادم لحفظ الحساب.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+  }
+}
+
+function handleAccountCsvFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const text = e.target.result;
+    const lines = text.split(/\r?\n/).map(line => line.trim()).filter(line => line !== '');
+    if (lines.length === 0) return;
+
+    const firstLine = lines[0];
+    let sep = ',';
+    if (firstLine.includes(';')) sep = ';';
+    else if (firstLine.includes('\t')) sep = '\t';
+
+    const clean = (val) => val ? val.replace(/^["']|["']$/g, '').trim() : '';
+
+    const parsed = [];
+    const headers = lines[0].split(sep).map(h => h.toLowerCase().trim());
+    const emailIdx = headers.indexOf('email');
+    const nameIdx = headers.indexOf('name');
+
+    for (let i = 1; i < lines.length; i++) {
+      const vals = lines[i].split(sep).map(clean);
+      if (vals.length === 0 || (vals.length === 1 && vals[0] === '')) continue;
+      
+      let email = vals[emailIdx >= 0 ? emailIdx : 0] || '';
+      let name = vals[nameIdx >= 0 ? nameIdx : 1] || email.split('@')[0];
+      
+      if (email.includes('@')) {
+        parsed.push({ email, name });
+      }
+    }
+
+    if (parsed.length > 0) {
+      const textarea = document.getElementById('accountRecipients');
+      const currentText = textarea.value.trim();
+      const newText = parsed.map(r => `${r.email}, ${r.name}`).join('\n');
+      textarea.value = currentText ? `${currentText}\n${newText}` : newText;
+      
+      const count = textarea.value.split('\n').filter(l => l.trim() !== '').length;
+      document.getElementById('accountRecipientsCountBadge').innerHTML = `<i class="fa-solid fa-check-circle"></i> ${count} مستلم معرّف`;
+      
+      showToast('تم الاستيراد', `تم دمج ${parsed.length} مستلم بنجاح! اضغط حفظ الحساب لتثبيت التغييرات.`, 'success');
+    }
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+async function uploadAccountAttachment(file) {
+  const idx = parseInt(document.getElementById('accountIndex').value);
+  if (idx === -1) return;
+
+  const formData = new FormData();
+  formData.append('index', idx);
+  formData.append('attachment', file);
+
+  const statusText = document.getElementById('accountAttachmentStatusText');
+  statusText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري رفع الملف...';
+
+  try {
+    const res = await fetch('/api/config/upload-attachment', {
+      method: 'POST',
+      body: formData
+    });
+    const result = await res.json();
+    if (result.success) {
+      showToast('تم رفع الصورة', result.message, 'success');
+      accountsList[idx].attachment = result.attachment;
+      renderAccountAttachmentPreview(result.attachment);
+      renderAccountsList();
+    } else {
+      showToast('فشل الرفع', result.message, 'error');
+      statusText.innerText = 'فشل الرفع. يرجى المحاولة مرة أخرى.';
+    }
+  } catch (err) {
+    showToast('خطأ بالخادم', 'تعذر إرسال الملف المرفق.', 'error');
+    statusText.innerText = 'حدث خطأ بالشبكة.';
+  }
+}
+
+function renderAccountAttachmentPreview(attachment) {
+  const preview = document.getElementById('accountAttachmentPreview');
+  const dropZone = document.getElementById('accountAttachmentDropZone');
+
+  if (attachment && attachment.filename) {
+    preview.innerHTML = `
+      <div class="uploaded-file-item" style="margin-top:0.75rem;">
+        <div class="file-info">
+          <i class="fa-solid fa-image text-cyan"></i>
+          <span class="file-name" title="${attachment.filename}">${attachment.filename}</span>
+        </div>
+        <button type="button" class="btn-xs-remove" id="btnRemoveAccountAttachment" title="إزالة الملف">
+          إزالة الصورة
+        </button>
+      </div>
+    `;
+    preview.classList.remove('hide');
+    dropZone.classList.add('hide');
+
+    document.getElementById('btnRemoveAccountAttachment').addEventListener('click', async () => {
+      if (!confirm('هل أنت متأكد من رغبتك في حذف صورة هذا الحساب؟')) return;
+      const idx = parseInt(document.getElementById('accountIndex').value);
+      if (idx === -1) return;
+
+      accountsList[idx].attachment = null;
+      try {
+        const acc = accountsList[idx];
+        const payload = {
+          index: idx,
+          ...acc,
+          recipients: JSON.stringify(acc.recipients || [])
+        };
+        const res = await fetch('/api/config/save-account', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (result.success) {
+          showToast('تمت الإزالة', 'تمت إزالة الصورة المرفقة من هذا الحساب بنجاح.', 'success');
+          renderAccountAttachmentPreview(null);
+          renderAccountsList();
+        }
+      } catch (err) {
+        showToast('خطأ', 'فشل معالجة الطلب على الخادم.', 'error');
+      }
+    });
+  } else {
+    preview.innerHTML = '';
+    preview.classList.add('hide');
+    dropZone.classList.remove('hide');
+    document.getElementById('accountAttachmentStatusText').innerText = 'اسحب وأسقط صورة الإثبات هنا، أو انقر للتصفح';
   }
 }
 
 // Initialize Event Listeners
 function initEventListeners() {
-  // SMTP Form Submit
-  const smtpForm = document.getElementById('smtpForm');
-  smtpForm.addEventListener('submit', async (e) => {
+  // Accounts Actions
+  document.getElementById('btnAddAccount').addEventListener('click', addNewAccount);
+  document.getElementById('btnTestAccountSmtp').addEventListener('click', testAccountSmtp);
+  document.getElementById('smtpAccountForm').addEventListener('submit', saveAccountDetails);
+
+  // Real-time parsed recipients count in editor
+  document.getElementById('accountRecipients').addEventListener('input', (e) => {
+    const lines = e.target.value.split('\n').filter(l => l.trim() !== '');
+    document.getElementById('accountRecipientsCountBadge').innerHTML = `<i class="fa-solid fa-check-circle"></i> ${lines.length} مستلم معرّف`;
+  });
+
+  // Account CSV Import
+  const accountCsvInput = document.getElementById('accountCsvInput');
+  accountCsvInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      handleAccountCsvFile(e.target.files[0]);
+    }
+  });
+
+  // Account specific attachment dropzone
+  const accDropZone = document.getElementById('accountAttachmentDropZone');
+  const accAttachmentInput = document.getElementById('accountAttachmentInput');
+
+  accDropZone.addEventListener('click', () => accAttachmentInput.click());
+  accDropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
-    const host = document.getElementById('smtpHost').value;
-    const port = document.getElementById('smtpPort').value;
-    const secure = document.getElementById('smtpSecure').checked;
-    const user = document.getElementById('smtpUser').value;
-    const pass = document.getElementById('smtpPass').value;
-    const fromName = document.getElementById('fromName').value;
-    const fromEmail = document.getElementById('fromEmail').value;
+    accDropZone.style.borderColor = 'var(--accent-cyan)';
+    accDropZone.style.background = 'rgba(6, 182, 212, 0.05)';
+  });
 
-    const btn = document.getElementById('btnSaveSmtp');
-    const originalText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الحفظ...';
+  ['dragleave', 'drop'].forEach(eventName => {
+    accDropZone.addEventListener(eventName, () => {
+      accDropZone.style.borderColor = '';
+      accDropZone.style.background = '';
+    });
+  });
 
-    try {
-      const res = await fetch('/api/config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ host, port, secure, user, pass, fromName, fromEmail })
-      });
-      const result = await res.json();
-      if (result.success) {
-        showToast('تم بنجاح', 'تم حفظ إعدادات خادم SMTP بنجاح!', 'success');
-        fetchSmtpConfig(); // Reload
-      } else {
-        showToast('خطأ في الحفظ', result.message || 'فشل حفظ الإعدادات.', 'error');
-      }
-    } catch (err) {
-      showToast('خطأ في الاتصال', 'تعذر الاتصال بالخادم الرئيسي.', 'error');
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = originalText;
+  accDropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      uploadAccountAttachment(files[0]);
     }
   });
 
-  // SMTP Test Connection Button
-  const btnTestSmtp = document.getElementById('btnTestSmtp');
-  btnTestSmtp.addEventListener('click', async () => {
-    const host = document.getElementById('smtpHost').value;
-    const port = document.getElementById('smtpPort').value;
-    const secure = document.getElementById('smtpSecure').checked;
-    const user = document.getElementById('smtpUser').value;
-    const pass = document.getElementById('smtpPass').value;
-
-    if (!host || !user || !pass) {
-      showToast('حقول مطلوبة', 'يرجى ملء المضيف، اسم المستخدم وكلمة المرور لتجربة الاتصال.', 'warning');
-      return;
-    }
-
-    const originalText = btnTestSmtp.innerHTML;
-    btnTestSmtp.disabled = true;
-    btnTestSmtp.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> جاري فحص الاتصال بالخادم...';
-
-    try {
-      const res = await fetch('/api/config/test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ host, port, secure, user, pass })
-      });
-      const result = await res.json();
-      if (result.success) {
-        showToast('نجاح الاتصال', result.message, 'success');
-      } else {
-        showToast('فشل الاتصال', result.message, 'error');
-      }
-    } catch (err) {
-      showToast('خطأ بالخادم', 'تعذر إجراء فحص الاتصال بـ SMTP.', 'error');
-    } finally {
-      btnTestSmtp.disabled = false;
-      btnTestSmtp.innerHTML = originalText;
+  accAttachmentInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+      uploadAccountAttachment(e.target.files[0]);
     }
   });
 
-  // CSV Drag and Drop Actions
+  // Global CSV Drag and Drop Actions
   const dragZone = document.getElementById('csvDragZone');
   const fileInput = document.getElementById('csvFileInput');
 
@@ -287,7 +682,6 @@ function handleCsvFile(file) {
 }
 
 function parseCSVData(text) {
-  // Detect standard CSV separators (comma, semicolon, tab)
   const lines = text.split(/\r?\n/).map(line => line.trim()).filter(line => line !== '');
   if (lines.length === 0) {
     showToast('ملف فارغ', 'لا يحتوي ملف CSV المرفوع على أي بيانات.', 'warning');
@@ -301,7 +695,6 @@ function parseCSVData(text) {
 
   const clean = (val) => val ? val.replace(/^["']|["']$/g, '').trim() : '';
 
-  // Parse lines considering quoted strings
   const parseLine = (line) => {
     let result = [];
     let current = '';
@@ -330,7 +723,6 @@ function parseCSVData(text) {
     
     const obj = {};
     headers.forEach((header, index) => {
-      // Map to standardized variables inside system (keep lowercase)
       const standardKey = header.toLowerCase().trim();
       obj[standardKey] = vals[index] || '';
     });
@@ -342,7 +734,6 @@ function parseCSVData(text) {
     return;
   }
 
-  // Set the system variables
   recipientsList = records;
   availableVariables = headers.map(h => h.toLowerCase().trim());
   
@@ -350,7 +741,6 @@ function parseCSVData(text) {
   buildPreviewTable(headers);
   buildVariableBadges();
   
-  // Switch to recipients tab automatically to see beautiful sheet preview
   switchTab('recipients-tab');
 }
 
@@ -365,7 +755,6 @@ function parseManualInputs(text) {
       const name = parts[1] || email.split('@')[0];
       const company = parts[2] || '';
       
-      // Basic validate email
       if (email.includes('@')) {
         tempRecords.push({ email, name, company });
       }
@@ -384,7 +773,6 @@ function parseManualInputs(text) {
   buildPreviewTable(['email', 'name', 'company']);
   buildVariableBadges();
   
-  // Reset input field
   document.getElementById('manualRecipients').value = '';
 }
 
@@ -403,14 +791,11 @@ function buildPreviewTable(headers) {
     return;
   }
 
-  // Build Head
   const trHead = document.createElement('tr');
-  // Column 1: Row Indicator
   const thIdx = document.createElement('th');
   thIdx.innerText = '#';
   trHead.appendChild(thIdx);
 
-  // Dynamic headers
   headers.forEach(h => {
     const th = document.createElement('th');
     th.innerText = h.toUpperCase();
@@ -421,12 +806,10 @@ function buildPreviewTable(headers) {
   let validCount = 0;
   let invalidCount = 0;
 
-  // Build Body rows
   recipientsList.forEach((recipient, idx) => {
     const tr = document.createElement('tr');
     tr.dataset.idx = idx;
 
-    // Validate email
     const emailStr = recipient.email || '';
     const isValid = emailStr.includes('@') && emailStr.length > 5;
     
@@ -436,12 +819,10 @@ function buildPreviewTable(headers) {
       tr.classList.add('invalid-row');
     }
 
-    // Index Column
     const tdIdx = document.createElement('td');
     tdIdx.innerText = idx + 1;
     tr.appendChild(tdIdx);
 
-    // Columns
     headers.forEach(header => {
       const td = document.createElement('td');
       const key = header.toLowerCase().trim();
@@ -449,12 +830,10 @@ function buildPreviewTable(headers) {
       tr.appendChild(td);
     });
 
-    // Make row clickable to compile live preview
     tr.addEventListener('click', () => {
       activePreviewIndex = idx;
       updateLivePreview();
       
-      // Highlight active row visually
       tbody.querySelectorAll('tr').forEach(r => r.style.background = '');
       tr.style.background = 'rgba(139, 92, 246, 0.15)';
     });
@@ -462,7 +841,6 @@ function buildPreviewTable(headers) {
     tbody.appendChild(tr);
   });
 
-  // Update badge and counts
   document.getElementById('recipientsCountBadge').innerText = recipientsList.length;
   document.getElementById('parsedTotalCount').innerText = recipientsList.length;
   document.getElementById('validEmailsCount').innerText = validCount;
@@ -470,7 +848,6 @@ function buildPreviewTable(headers) {
 
   container.classList.remove('hide');
   
-  // Auto select first row for preview on build
   activePreviewIndex = 0;
   updateLivePreview();
 }
@@ -499,9 +876,8 @@ function insertVariable(variableName) {
   
   mailBody.value = before + `{{${variableName}}}` + after;
   mailBody.focus();
-  mailBody.selectionStart = mailBody.selectionEnd = start + variableName.length + 4; // cursor right after variable
+  mailBody.selectionStart = mailBody.selectionEnd = start + variableName.length + 4;
   
-  // Trigger update live preview
   updateLivePreview();
 }
 
@@ -522,7 +898,6 @@ function updateLivePreview() {
   const rawSubject = document.getElementById('mailSubject').value || 'لا يوجد موضوع';
   const rawBody = document.getElementById('mailBody').value || '';
 
-  // Inject placeholders
   const parseStr = (str, data) => {
     let result = str;
     for (const [key, value] of Object.entries(data)) {
@@ -538,21 +913,18 @@ function updateLivePreview() {
   previewToEmail.innerText = `"${recipient.name || 'بدون اسم'}" <${recipient.email}>`;
   previewSubject.innerText = compiledSubject;
   
-  // Set iframe safely with sandbox content
   if (compiledBody.trim() === '') {
     iframe.srcdoc = "<p style='color:#9ca3af; font-family:sans-serif; text-align:center; padding-top:40px;'>المحتوى فارغ حالياً.</p>";
   } else {
-    // If it's pure HTML, supply it. If not, preserve spacing for normal text
     const isHtml = /<[a-z][\s\S]*>/i.test(compiledBody);
     iframe.srcdoc = isHtml ? compiledBody : `<pre style='font-family: sans-serif; font-size: 14px; white-space: pre-wrap; padding: 15px;'>${compiledBody}</pre>`;
   }
 }
 
-// 5.5. Attachment File Helpers
+// 5.5. Attachment File Helpers (Global Campaign)
 function addAttachments(files) {
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-    // Avoid duplicates
     if (!selectedAttachments.some(f => f.name === file.name)) {
       selectedAttachments.push(file);
     }
@@ -599,25 +971,29 @@ function renderAttachmentsPreview() {
 
 // 6. Campaign Processors API Call
 async function launchCampaign() {
-  if (recipientsList.length === 0) {
-    showToast('عفواً', 'قائمة المستلمين فارغة! يرجى تحميل ملف CSV أو لصق جهات اتصال.', 'warning');
-    switchTab('recipients-tab');
+  const activeAccountsWithReps = accountsList.filter(acc => acc.isActive && acc.recipients && acc.recipients.length > 0);
+
+  if (recipientsList.length === 0 && activeAccountsWithReps.length === 0) {
+    showToast('عفواً', 'قوائم المستلمين فارغة! يرجى إدخال مستلم للمسودة العامة أو ضبط مستلمين في الحسابات النشطة.', 'warning');
     return;
   }
 
+  const isGlobal = recipientsList.length > 0;
   const subject = document.getElementById('mailSubject').value;
   const htmlTemplate = document.getElementById('mailBody').value;
-  const delay = document.getElementById('sendingDelay').value * 1000; // in ms
+  const delay = document.getElementById('sendingDelay').value * 1000;
 
-  if (!subject) {
-    showToast('عنوان مطلوب', 'يرجى وضع عنوان للحملة البريدية.', 'warning');
-    document.getElementById('mailSubject').focus();
-    return;
-  }
-  if (!htmlTemplate) {
-    showToast('محتوى مطلوب', 'محتوى الرسالة فارغ!', 'warning');
-    document.getElementById('mailBody').focus();
-    return;
+  if (isGlobal) {
+    if (!subject) {
+      showToast('عنوان مطلوب', 'يرجى وضع عنوان للحملة البريدية العامة.', 'warning');
+      document.getElementById('mailSubject').focus();
+      return;
+    }
+    if (!htmlTemplate) {
+      showToast('محتوى مطلوب', 'محتوى الرسالة العامة فارغ!', 'warning');
+      document.getElementById('mailBody').focus();
+      return;
+    }
   }
 
   const btn = document.getElementById('btnLaunchCampaign');
@@ -625,29 +1001,26 @@ async function launchCampaign() {
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> جاري استنفار خوادم الإرسال وإطلاق الحملة...';
 
-  // Construct Multipart Form Data
   const formData = new FormData();
-  formData.append('recipients', JSON.stringify(recipientsList));
-  formData.append('subject', subject);
-  formData.append('htmlTemplate', htmlTemplate);
+  if (isGlobal) {
+    formData.append('recipients', JSON.stringify(recipientsList));
+    formData.append('subject', subject);
+    formData.append('htmlTemplate', htmlTemplate);
+    selectedAttachments.forEach(file => {
+      formData.append('attachments', file);
+    });
+  }
   formData.append('delay', delay);
-
-  // Attach all files
-  selectedAttachments.forEach(file => {
-    formData.append('attachments', file);
-  });
 
   try {
     const res = await fetch('/api/campaign/start', {
       method: 'POST',
-      body: formData // Fetch will automatically set the correct multipart boundaries
+      body: formData
     });
 
     const result = await res.json();
     if (result.success) {
       showToast('انطلقت الحملة', result.message, 'success');
-      
-      // Auto reconnect/force update SSE
       connectStatusSSE();
     } else {
       showToast('تعذر البدء', result.message || 'فشل إطلاق الحملة.', 'error');
@@ -685,7 +1058,7 @@ async function resumeCampaign() {
 }
 
 async function stopCampaign() {
-  if (!confirm('هل أنت متأكد من رغبتك في إلغاء وإيقاف هذه الحملة تماماً؟ لا يمكنك التراجع.')) return;
+  if (!confirm('هل أنت متأكد من رغبتك في إلغاء وإيقاف جميع حملات الإرسال النشطة تماماً؟ لا يمكنك التراجع.')) return;
   try {
     const res = await fetch('/api/campaign/stop', { method: 'POST' });
     const result = await res.json();
@@ -736,15 +1109,13 @@ function updateCampaignUI(data) {
   document.getElementById('statSuccess').innerText = data.successCount;
   document.getElementById('statFail').innerText = data.failureCount;
 
-  // Percentage Calculations
+  // Percentage
   const percentage = data.total > 0 ? Math.round((data.current / data.total) * 100) : 0;
   document.getElementById('statPercentage').innerText = `${percentage}%`;
 
-  // Update progress bar
   document.getElementById('campaignProgressBar').style.width = `${percentage}%`;
   document.getElementById('campaignProgressBarGlow').style.width = `${percentage}%`;
 
-  // UI elements handling active campaign state
   if (data.active) {
     controls.classList.remove('hide');
     
@@ -765,7 +1136,7 @@ function updateCampaignUI(data) {
     statusLabel.innerText = 'الحالة: خامل';
   }
 
-  // Update Terminal Logs
+  // Update Logs
   if (data.logs && data.logs.length > 0) {
     const terminal = document.getElementById('terminalLogsBody');
     terminal.innerHTML = '';
@@ -775,10 +1146,12 @@ function updateCampaignUI(data) {
       line.className = `log-line ${log.status}`;
       
       let msg = '';
+      const accPrefix = log.accountUser ? `[${log.accountUser}] ` : '';
+
       if (log.status === 'success') {
-        msg = `✅ [SUCCESS] Email sent successfully to ${log.recipientName} <${log.email}>`;
+        msg = `✅ [SUCCESS] ${accPrefix}Email sent successfully to ${log.recipientName} <${log.email}>`;
       } else if (log.status === 'failed') {
-        msg = `❌ [FAILED] Error sending to ${log.recipientName} <${log.email}> - Error: ${log.error}`;
+        msg = `❌ [FAILED] ${accPrefix}Error sending to ${log.recipientName} <${log.email}> - Error: ${log.error}`;
       } else if (log.status === 'info') {
         msg = `ℹ️ [SYSTEM] ${log.error}`;
       } else if (log.status === 'completed') {
@@ -792,7 +1165,6 @@ function updateCampaignUI(data) {
       terminal.appendChild(line);
     });
 
-    // Auto scroll to bottom
     terminal.scrollTop = terminal.scrollHeight;
   }
 }

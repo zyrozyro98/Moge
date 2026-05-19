@@ -118,6 +118,7 @@ body {
     width: auto;
     object-fit: contain;
     margin-bottom: 10px;
+    mix-blend-mode: multiply; /* Makes the white JPG background fully transparent */
     animation: pulseGlow 2s infinite alternate;
 }
 
@@ -344,8 +345,9 @@ h1, h2, h3, h4, h5, h6 {
     height: 55px;
     width: auto;
     object-fit: contain;
+    mix-blend-mode: multiply; /* Removes white background seamlessly */
+    filter: contrast(1.05); /* Slightly enhances the logo colors */
     transition: var(--transition-smooth);
-    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.05));
 }
 
 .logo-link:hover .brand-logo {

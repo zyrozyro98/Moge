@@ -3224,6 +3224,44 @@ p {
     color: #64748b !important;
 }
 
+/* Hero Section Premium Light Overrides */
+.hero-title {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+.hero-description {
+    color: #475569 !important;
+}
+.hero-trust .trust-icons {
+    color: #475569 !important;
+    opacity: 1 !important;
+}
+.hero-trust .trust-icons i {
+    color: var(--primary) !important;
+}
+.visual-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 20px 40px rgba(30, 58, 138, 0.08) !important;
+    backdrop-filter: none !important;
+}
+.visual-card:hover {
+    border-color: var(--primary) !important;
+    box-shadow: 0 25px 50px rgba(30, 58, 138, 0.12) !important;
+    transform: translateY(-6px) !important;
+}
+.student-info {
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+.student-info .student-uni {
+    color: #64748b !important;
+}
+.chart-label {
+    color: #475569 !important;
+    font-weight: 600 !important;
+}
+
+
 
 
 

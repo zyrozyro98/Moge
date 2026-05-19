@@ -2920,4 +2920,82 @@ p {
     filter: contrast(1.05);
 }
 
+/* FAQ accordion premium look */
+.faq-item {
+    margin-bottom: 15px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: var(--radius-md) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important;
+    transition: var(--transition-smooth);
+}
+.faq-item:hover {
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04) !important;
+}
+.faq-question {
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    padding: 20px 24px !important;
+    background: #ffffff !important;
+    border-radius: var(--radius-md) !important;
+}
+.faq-answer {
+    background: #f8fafc !important;
+    padding: 20px 24px !important;
+    border-top: 1px solid #e2e8f0 !important;
+    border-bottom-left-radius: var(--radius-md) !important;
+    border-bottom-right-radius: var(--radius-md) !important;
+}
+.faq-answer p {
+    color: #475569 !important;
+    font-size: 15px !important;
+    line-height: 1.8 !important;
+}
+
+/* Floating interactive widgets overhaul */
+.floating-whatsapp-widget .whatsapp-trigger {
+    background: #25d366 !important;
+    box-shadow: 0 8px 24px rgba(37, 211, 102, 0.3) !important;
+}
+.floating-whatsapp-widget .whatsapp-trigger:hover {
+    transform: scale(1.08) !important;
+}
+.whatsapp-popup {
+    border-radius: var(--radius-lg) !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08) !important;
+    background: #ffffff !important;
+}
+.whatsapp-popup .popup-header {
+    background: #1e3a8a !important;
+}
+.whatsapp-opt-link {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: var(--radius-md) !important;
+    transition: var(--transition-smooth) !important;
+}
+.whatsapp-opt-link:hover {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    transform: translateX(-4px) !important;
+}
+.whatsapp-opt-link div span {
+    color: #1e293b !important;
+    font-weight: 700 !important;
+}
+.whatsapp-opt-link div small {
+    color: #64748b !important;
+}
+.btn-whatsapp-direct-popup {
+    background: #25d366 !important;
+    border-radius: 50px !important;
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25) !important;
+}
+.btn-whatsapp-direct-popup:hover {
+    background: #20ba5a !important;
+    transform: translateY(-2px) !important;
+}
+
+
 

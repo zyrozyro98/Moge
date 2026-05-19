@@ -12,11 +12,30 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Configure Multer for CSV uploads (optional, since we also support direct pasting & JSON uploading)
-const upload = multer({ dest: 'uploads/' });
+// Data directory for persistence (useful for Render Persistent Disks)
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+
+const uploadsDir = path.join(DATA_DIR, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configure Multer for CSV and attachment uploads
+const upload = multer({ dest: uploadsDir });
 
 // Path for storing config persistence
-const CONFIG_FILE = path.join(__dirname, 'config.json');
+const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
+const DEFAULT_CONFIG_FILE = path.join(__dirname, 'config.json');
+
+// Copy default config to persistent dir if not present
+if (DATA_DIR !== __dirname && !fs.existsSync(CONFIG_FILE) && fs.existsSync(DEFAULT_CONFIG_FILE)) {
+  try {
+    fs.copyFileSync(DEFAULT_CONFIG_FILE, CONFIG_FILE);
+    console.log(`Copied default config.json to persistent directory: ${CONFIG_FILE}`);
+  } catch (err) {
+    console.error('Failed to copy default config.json:', err);
+  }
+}
 
 // Helper to load SMTP configuration
 function loadConfig() {
@@ -281,7 +300,7 @@ async function runAccountCampaign(account, globalDelay) {
 
     const attachments = [];
     if (account.attachment && account.attachment.path) {
-      const attPath = path.join(__dirname, account.attachment.path);
+      const attPath = path.join(DATA_DIR, account.attachment.path);
       if (fs.existsSync(attPath)) {
         let safeName = account.attachment.filename;
         try {
@@ -455,7 +474,7 @@ app.post('/api/config/delete-account', (req, res) => {
   if (idx >= 0 && idx < accounts.length) {
     const account = accounts[idx];
     if (account.attachment && account.attachment.path) {
-      const filePath = path.join(__dirname, account.attachment.path);
+      const filePath = path.join(DATA_DIR, account.attachment.path);
       if (fs.existsSync(filePath)) {
         fs.unlink(filePath, (err) => {
           if (err) console.error('Error deleting attachment file:', err);
@@ -485,7 +504,7 @@ app.post('/api/config/upload-attachment', upload.single('attachment'), (req, res
   if (idx >= 0 && idx < accounts.length) {
     const account = accounts[idx];
     if (account.attachment && account.attachment.path) {
-      const oldPath = path.join(__dirname, account.attachment.path);
+      const oldPath = path.join(DATA_DIR, account.attachment.path);
       if (fs.existsSync(oldPath)) {
         fs.unlink(oldPath, (err) => {
           if (err) console.error('Error deleting old attachment file:', err);
@@ -493,7 +512,7 @@ app.post('/api/config/upload-attachment', upload.single('attachment'), (req, res
       }
     }
 
-    const relPath = path.relative(__dirname, req.file.path);
+    const relPath = path.relative(DATA_DIR, req.file.path);
     let safeFilename = req.file.originalname;
     try {
       safeFilename = Buffer.from(req.file.originalname, 'latin1').toString('utf8');

@@ -2703,6 +2703,13 @@ body {
 }
 
 /* 3. Buttons Solid Colors */
+.btn, .btn-primary, .btn-secondary, .btn-glow, .btn-outline, .btn-header, .btn-whatsapp-direct {
+    border-radius: 50px !important; /* Premium rounded pill shape */
+    padding: 12px 28px !important;
+    font-weight: 700 !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
 .btn-primary {
     background: #1e3a8a !important;
     color: #ffffff !important;
@@ -2712,6 +2719,7 @@ body {
 .btn-primary:hover {
     background: #1e40af !important;
     box-shadow: 0 6px 12px -1px rgba(30, 58, 138, 0.3) !important;
+    transform: translateY(-2px) !important;
 }
 
 .btn-secondary {
@@ -2724,6 +2732,7 @@ body {
     background: #f8fafc !important;
     border-color: #94a3b8 !important;
     color: #1e40af !important;
+    transform: translateY(-2px) !important;
 }
 
 /* 4. Background Glow Orbs Hidden/Faded */

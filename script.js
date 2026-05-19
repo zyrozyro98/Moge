@@ -8,14 +8,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Premium Preloader Fade Out
     const loader = document.getElementById('loader');
     if (loader) {
-        window.addEventListener('load', () => {
-            // Adding a small delay for premium feels
+        const hideLoader = () => {
             setTimeout(() => {
-                loader.classList.add('fade-out');
-                // Trigger stats counter check on load
-                animateStatsOnScroll();
+                if (!loader.classList.contains('fade-out')) {
+                    loader.classList.add('fade-out');
+                    // Trigger stats counter check on load
+                    animateStatsOnScroll();
+                }
             }, 600);
-        });
+        };
+
+        // If load event already fired, hide loader immediately. Else listen for load.
+        if (document.readyState === 'complete') {
+            hideLoader();
+        } else {
+            window.addEventListener('load', hideLoader);
+        }
 
         // Fail-safe: if load event already fired or delayed
         setTimeout(() => {

@@ -2902,3 +2902,13 @@ p {
     background: #f8fafc !important;
 }
 
+/* Footer image logo adjustment */
+.footer-brand-logo {
+    height: 55px;
+    width: auto;
+    object-fit: contain;
+    mix-blend-mode: multiply; /* Make white background transparent */
+    filter: contrast(1.05);
+}
+
+

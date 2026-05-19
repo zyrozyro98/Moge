@@ -282,9 +282,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 `- التخصص الأكاديمي المرغوب: ${desiredMajor}\n\n` +
                 `أرجو من مستشار القبول والتسجيل التواصل معي وإفادتي بالإجراءات والمستندات المطلوبة في أسرع وقت. شكراً لكم!`;
 
-            // Redirect the user directly to WhatsApp chat window
+            // Elegant button feedback and loading state
+            const submitBtn = uniRegForm.querySelector('button[type="submit"]');
+            const originalBtnHtml = submitBtn.innerHTML;
+
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.85';
+            submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>جاري تحويلك إلى واتساب...</span>`;
+
             const waUrl = `https://wa.me/966541996435?text=${encodeURIComponent(waMessage)}`;
-            window.open(waUrl, '_blank');
+
+            // Launch WhatsApp and restore button cleanly after delay
+            setTimeout(() => {
+                window.open(waUrl, '_blank');
+
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                    submitBtn.innerHTML = originalBtnHtml;
+                    uniRegForm.reset();
+                }, 1000);
+            }, 800);
         });
     }
 

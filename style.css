@@ -3261,6 +3261,19 @@ p {
     font-weight: 600 !important;
 }
 
+/* Premium Light Navigation Links Overrides */
+.nav-link {
+    color: #334155 !important;
+    font-weight: 600 !important;
+}
+.nav-link:hover, .nav-link.active {
+    color: #1e3a8a !important;
+}
+.nav-link::after {
+    background: linear-gradient(90deg, #d97706 0%, #1e3a8a 100%) !important;
+}
+
+
 
 
 

@@ -3347,6 +3347,61 @@ p {
     border-color: #1877f2 !important;
 }
 
+/* Premium Footer Bottom Overrides for Light Mode */
+.footer-bottom {
+    background: #f8fafc !important; /* Premium light slate footer bottom background for structural separation */
+    border-top: 1px solid #e2e8f0 !important;
+    padding: 25px 0 !important;
+}
+.footer-bottom-content p {
+    color: #64748b !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+}
+.bottom-links a {
+    color: #64748b !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    text-decoration: none !important;
+    transition: var(--transition-smooth) !important;
+}
+.bottom-links a:hover {
+    color: #1e3a8a !important; /* Royal Navy color on hover */
+}
+.bottom-links .bullet {
+    color: #cbd5e1 !important;
+}
+
+/* Premium Sticky Social Bar Light Overrides for 100% Visibility */
+.sticky-social-bar {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-left: none !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+    border-radius: 0 12px 12px 0 !important;
+}
+.sticky-social-bar a {
+    color: #475569 !important; /* Deep visible slate instead of undefined var */
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+.sticky-social-bar a:hover {
+    color: #ffffff !important;
+}
+.sticky-social-bar a.snapchat:hover {
+    background: linear-gradient(135deg, #fffc00 0%, #ffd000 100%) !important;
+    color: #000000 !important;
+}
+.sticky-social-bar a.instagram:hover {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+}
+.sticky-social-bar a.twitter:hover {
+    background: #000000 !important;
+}
+.sticky-social-bar a.facebook:hover {
+    background: #1877f2 !important;
+}
+
+
 
 
 

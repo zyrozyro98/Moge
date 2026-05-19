@@ -2906,6 +2906,12 @@ p {
     border-color: #1e3a8a !important;
     box-shadow: 0 4px 10px rgba(30, 58, 138, 0.15) !important;
 }
+.uni-option.active h4 {
+    color: #ffffff !important;
+}
+.uni-option.active p {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
 .uni-option:hover:not(.active) {
     border-color: #cbd5e1 !important;
     background: #f8fafc !important;

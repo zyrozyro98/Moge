@@ -3401,6 +3401,71 @@ p {
     background: #1877f2 !important;
 }
 
+/* Premium Scroll-to-Top Button Overrides */
+.scroll-to-top {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #1e3a8a !important; /* Royal Navy color */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+    transition: var(--transition-smooth) !important;
+}
+.scroll-to-top:hover {
+    background: #1e3a8a !important; /* Royal Navy fill on hover */
+    color: #ffffff !important;
+    transform: translateY(-4px) !important;
+    box-shadow: 0 8px 20px rgba(30, 58, 138, 0.2) !important;
+}
+.scroll-to-top.show {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+}
+
+/* Premium Pulsing WhatsApp Notification Badge Overrides */
+.whatsapp-badge {
+    background: #ef4444 !important; /* Vivid Red-Orange */
+    font-weight: 700 !important;
+    border: 1.5px solid #ffffff !important;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.4) !important;
+    animation: badgePulse 2s infinite alternate !important;
+}
+
+@keyframes badgePulse {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.18);
+        box-shadow: 0 0 14px rgba(239, 68, 68, 0.6);
+    }
+}
+
+/* Premium Close Popup Button Overrides */
+.close-popup {
+    color: rgba(255, 255, 255, 0.75) !important;
+    transition: var(--transition-smooth) !important;
+}
+.close-popup:hover {
+    color: #ffffff !important;
+    transform: scale(1.2) !important;
+}
+
+/* Premium Footer Contact Information Overrides */
+.contact-item {
+    color: #64748b !important;
+}
+.contact-item i {
+    color: #1e3a8a !important; /* Royal Navy Blue color for contact icons */
+    font-size: 16px !important;
+}
+.contact-link {
+    color: #334155 !important; /* High contrast visible text */
+}
+.contact-link:hover {
+    color: #2563eb !important;
+}
+
+
 
 
 
